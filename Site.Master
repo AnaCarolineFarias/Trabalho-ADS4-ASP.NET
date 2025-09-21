@@ -1,0 +1,77 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.Master.cs" Inherits="PluxxePet_Web.SiteMaster" %>
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>PluxeePet - Clínica Veterinária</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f7f7f7;
+        }
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        nav {
+            background: #34495e;
+            padding: 10px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .content {
+            padding: 20px;
+        }
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <form runat="server">
+        <header>
+            <h1>🐾 PluxeePet - Clínica Veterinária</h1>
+        </header>
+
+       <nav>
+    <ul style="list-style:none; margin:0; padding:0; display:flex; justify-content:flex-end;">
+        <li style="margin-left:20px;"><a runat="server" href="~/Default.aspx">Início</a></li>
+        <li><a runat="server" href="~/ContatoAba/Servicos.aspx">Serviços</a></li>
+        <li><a runat="server" href="~/ContatoAba/Sobre.aspx">Sobre</a></li>
+        <li><a runat="server" href="~/ContatoAba/Contato.aspx">Contato</a></li>
+    </ul>
+</nav>
+
+
+        <div class="content">
+            <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+        </div>
+
+        <footer>
+            &copy; 2025 PluxeePet - Todos os direitos reservados
+        </footer>
+    </form>
+</body>
+</html>
