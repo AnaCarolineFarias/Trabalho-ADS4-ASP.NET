@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Início" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="PluxxePet_Web._Default" %>
+<%@Page Title="Início" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="PluxeePetADS4.Default"%>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <style>
@@ -75,7 +75,7 @@
 
     <!-- Botões de Funcionários / Clientes -->
     <div class="banner-buttons">
-        <asp:Button ID="btnFuncionarios" runat="server" Text="Área de Funcionários" CssClass="btn-area btn-area-func" PostBackUrl="~/Funcionario/Login.aspx" />
+        <asp:Button ID="btnFuncionarios" runat="server" Text="Área de Funcionários" CssClass="btn-area btn-area-func" PostBackUrl="~/Funcionario/Funcionario.aspx" />
         <asp:Button ID="btnClientes" runat="server" Text="Área de Clientes" CssClass="btn-area btn-area-client" PostBackUrl="~/Cliente/Login.aspx" />
     </div>
 
