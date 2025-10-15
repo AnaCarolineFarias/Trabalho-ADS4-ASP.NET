@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Contato" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Contato.aspx.cs" Inherits="PluxxePet_Web.Contact" %>
+<%@ Page Title="Contato" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Contato.aspx.cs" Inherits="PluxeePetADS4.ContatoAba.Contato" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
 
@@ -10,7 +10,7 @@
 
             <!-- Cartão Endereço -->
             <div style="flex:1; min-width:250px; background:#EDF2F7; padding:25px; border-radius:12px; box-shadow:0 4px 8px rgba(0,0,0,0.1); text-align:center;">
-                <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Localização" style="width:50px; margin-bottom:15px;">
+                <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Localização" style="width:50px; margin-bottom:15px;"/>
                 <h3>Localização</h3>
                 <p>Rua: José Guerreiro<br/>Bairro: J.S Carvalho<br/>N°: 164</p>
             </div>
