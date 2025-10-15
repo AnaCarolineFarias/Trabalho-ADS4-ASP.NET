@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Funcionario.aspx.cs" Inherits="PluxxePet_Web.Funcionario" MasterPageFile="~/Site.Master" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Funcionario.aspx.cs" Inherits="PluxeePetADS4.Funcionario.Funcionario" MasterPageFile="~/Site.Master" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <style>
@@ -39,8 +39,9 @@
         <h2>Login Funcionário</h2>
 
         <asp:Panel ID="loginDiv" runat="server">
+
             <div class="form-group">
-                <asp:Label ID="lblUsuario" runat="server" Text="Usuário:" AssociatedControlID="txtUsuario"></asp:Label>
+                <asp:Label ID="lblUsuario" runat="server" Text="ID Funcionário:" AssociatedControlID="txtUsuario"></asp:Label>
                 <asp:TextBox ID="txtUsuario" runat="server"></asp:TextBox>
             </div>
 
@@ -57,5 +58,6 @@
             <h3>Agenda de Consultas</h3>
             <asp:GridView ID="gridAgenda" runat="server" AutoGenerateColumns="true"></asp:GridView>
         </asp:Panel>
+
     </div>
 </asp:Content>
