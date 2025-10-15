@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Área do Cliente" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Cliente.aspx.cs" Inherits="PluxeePet_Web.Cliente" %>
+<%@ Page Title="Área do Cliente" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Cliente.aspx.cs" Inherits="PluxeePetADS4.Cliente" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <style>
@@ -48,8 +48,10 @@
         }
     </style>
 
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://accounts.google.com/gsi/client "async="async" defer="defer"> </script>
+
     <script>
+
     function handleCredentialResponse(response) {
         const base64Url = response.credential.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -70,7 +72,7 @@
         // Aqui você poderia enviar o token para o servidor se quiser criar sessão
         console.log(response.credential);
     }
-</script>
+    </script>
 
     <div class="container">
         <h2>Área do Cliente</h2>
