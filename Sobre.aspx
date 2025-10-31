@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Sobre.aspx.cs" Inherits="PluxxePet_Web.ContatoAba.Sobre" %>
+<%@ Page Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Sobre.aspx.cs" Inherits="PluxeePetADS4.ContatoAba.Sobre" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
 
@@ -18,7 +18,7 @@
 
         <div style="display: flex; justify-content: center; gap: 40px; margin-top: 40px; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 200px;">
-                <img src="imagens/fundadora.jpg" alt="Fundadora PluxeePet" style="width: 100%; border-radius: 8px;">
+                <img src="imagens/fundadora.jpg" alt="Fundadora PluxeePet" style="width: 100%; border-radius: 8px;"/>
                 <h4 style="margin-top: 10px;">Nossa Fundadora</h4>
                 <p>Ana Luísa, apaixonada por pets e dedicada a transformar vidas com cuidado e carinho.</p>
             </div>
