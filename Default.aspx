@@ -71,12 +71,13 @@
         .info-item h3 {
             margin-bottom: 5px;
         }
+
     </style>
 
     <!-- Botões de Funcionários / Clientes -->
     <div class="banner-buttons">
-        <asp:Button ID="btnFuncionarios" runat="server" Text="Área de Funcionários" CssClass="btn-area btn-area-func" PostBackUrl="~/Funcionario/Funcionario.aspx" />
-        <asp:Button ID="btnClientes" runat="server" Text="Área de Clientes" CssClass="btn-area btn-area-client" PostBackUrl="~/Cliente/Login.aspx" />
+        <asp:Button ID="btnFuncionario" runat="server" Text="Área de Funcionários" CssClass="btn-area btn-area-func" PostBackUrl="~/Funcionario/LoginFunc.aspx" />
+        <asp:Button ID="btnCliente" runat="server" Text="Área de Clientes" CssClass="btn-area btn-area-client" PostBackUrl="~/Cliente/Cliente.aspx" />
     </div>
 
     <!-- Seção Quem Somos -->
@@ -97,17 +98,23 @@
                     <h3>Atendimento</h3>
                     <p>Atendimento veterinário especializado.</p>
                 </div>
+
                 <div class="info-item">
                     <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Localização" />
                     <h3>Localização</h3>
                     <p>Rua: José Guerreiro<br />Bairro: J.S Carvalho<br />Nº: 164</p>
                 </div>
+
                 <div class="info-item">
                     <img src="https://cdn-icons-png.flaticon.com/512/1827/1827272.png" alt="Horário" />
                     <h3>Horário</h3>
                     <p>Aberto de Segunda a Sábado das 8:00 às 18:00</p>
                 </div>
+
             </div>
+
         </div>
+
     </div>
+
 </asp:Content>
