@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Servicos.aspx.cs" MasterPageFile="~/Site.Master" Inherits="PluxxePet_Web.Servicos" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Servicos.aspx.cs" MasterPageFile="~/Site.Master" Inherits="PluxeePetADS4.ContatoAba.Servicos.Servicos" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
 
