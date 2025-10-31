@@ -8,7 +8,7 @@ using System.Web.UI.WebControls;
 
 namespace PluxeePetADS4.Funcionario
 {
-    public partial class Funcionario : System.Web.UI.Page
+    public partial class LoginFunc : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
