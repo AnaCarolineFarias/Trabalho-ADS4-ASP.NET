@@ -1,28 +1,36 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 
-namespace PluxxePet_Web.ConexaoBanco
+namespace PluxeePetADS4
 {
     public class Conexao
     {
-        private string connectionString;
+        private SqlConnection con;
 
+        // Construtor - define a string de conexão
         public Conexao()
         {
-            // Pega a string de conexão do Web.config
-            connectionString = ConfigurationManager.ConnectionStrings["PluxeePetDB"].ConnectionString;
+            // Caminho para o seu LocalDB
+            string connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=PluxeePetDB;Integrated Security=True";
+            con = new SqlConnection(connectionString);
         }
 
-        // Retorna uma conexão aberta
-        public SqlConnection GetConnection()
+        // Abrir conexão
+        public SqlConnection AbrirConexao()
         {
-            SqlConnection conn = new SqlConnection(connectionString);
-            conn.Open();
-            return conn;
+            if (con.State == System.Data.ConnectionState.Closed)
+                con.Open();
+            return con;
+        }
+
+        // Fechar conexão
+        public void FecharConexao()
+        {
+            if (con.State == System.Data.ConnectionState.Open)
+                con.Close();
         }
     }
 }
