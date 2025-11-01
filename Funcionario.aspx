@@ -1,322 +1,323 @@
-<%@ Page Title="Login Funcionário" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="LoginFunc.aspx.cs" Inherits="PluxeePetADS4.Funcionario.LoginFuncionario" EnableEventValidation="false"%>
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.Web.UI;
+using System.Web.UI.WebControls;
 
-<asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <style>
-        /* CSS REPLICADO DO CLIENTE.ASPX */
-        body
+namespace PluxeePetADS4.Funcionario
+{
+    public partial class LoginFuncionario : System.Web.UI.Page
+    {
+        private readonly string connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=PluxeePet;Integrated Security=True";
+
+        protected void Page_Load(object sender, EventArgs e)
         {
-            background-color: #f5f6fa;
+            if (!IsPostBack)
+            {
+                if (Session["FuncionarioId"] == null)
+                {
+                    OcultarTodosConteudos();
+                    pnlLoginFuncionario.Visible = true;
+                }
+                else
+                {
+                    // Se já estiver logado, vai para as opções do funcionário
+                    OcultarTodosConteudos();
+                    pnlOpcoesFuncionario.Visible = true;
+                    string nome = Session["FuncionarioNome"] as string;
+                    if (!string.IsNullOrEmpty(nome))
+                    {
+                        lblMensagemFuncionarioBoasVindas.Text = $"Bem-vindo(a), {nome}! Escolha uma opção:";
+                    }
+                }
+            }
         }
 
-        .container
+        private void OcultarTodosConteudos()
         {
-            max-width: 900px;
-            margin: 60px auto;
-            padding: 40px;
-            border-radius: 15px;
-            background: #fff;
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            pnlLoginFuncionario.Visible = false;
+            pnlOpcoesFuncionario.Visible = false;
+            pnlAgenda.Visible = false;
+            pnlCadastroCliente.Visible = false;
+            lblMensagem.Text = ""; // Limpa a mensagem geral ao trocar de painel
+            lblMensagemCadastroCliente.Text = ""; // Limpa a mensagem de cadastro
         }
 
-        /* === REGRAS CORRIGIDAS PARA O LOGIN HORIZONTAL (LABEL AO LADO DO CAMPO) === */
-        #pnlLoginFuncionario
+        private void MostrarMensagem(string texto, System.Drawing.Color cor)
         {
-            max-width: 400px; /* Limita a largura do formulário de login */
-            margin: 0 auto; /* Centraliza o bloco de login dentro do container maior */
-            text-align: center; /* Centraliza o título e o botão */
+            lblMensagem.Text = texto;
+            lblMensagem.ForeColor = cor;
         }
-        
-        /* Aplica Flexbox para alinhamento horizontal (Label e Input lado a lado) */
-        #pnlLoginFuncionario .form-group 
+
+        protected void btnEntrar_Click(object sender, EventArgs e)
         {
-            text-align: left;
-            display: flex; /* CHAVE: Habilita o alinhamento horizontal */
-            align-items: center; /* Centraliza verticalmente */
-            margin: 15px 0;
+            string idFuncionario = txtFuncionarioId.Text.Trim();
+            string senha = txtSenha.Text.Trim();
+
+            if (string.IsNullOrEmpty(idFuncionario) || string.IsNullOrEmpty(senha))
+            {
+                MostrarMensagem("Preencha ID e senha!", System.Drawing.Color.Red);
+                pnlLoginFuncionario.Visible = true;
+                return;
+            }
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    const string query = @"SELECT IdFuncionario, Nome FROM Funcionarios WHERE IdFuncionario = @id AND Senha = @senha";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", idFuncionario);
+                        cmd.Parameters.AddWithValue("@senha", senha);
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                int id = reader.GetInt32(0);
+                                string nome = reader.GetString(1);
+
+                                Session["FuncionarioId"] = id;
+                                Session["FuncionarioNome"] = nome;
+
+                                OcultarTodosConteudos();
+                                pnlOpcoesFuncionario.Visible = true;
+                                lblMensagemFuncionarioBoasVindas.Text = $"Bem-vindo(a), {nome}! Escolha uma opção:";
+                                MostrarMensagem("Login efetuado com sucesso!", System.Drawing.Color.Green);
+                            }
+                            else
+                            {
+                                MostrarMensagem("ID ou senha incorretos!", System.Drawing.Color.Red);
+                                pnlLoginFuncionario.Visible = true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MostrarMensagem("Erro ao conectar ou autenticar: " + ex.Message, System.Drawing.Color.Red);
+                pnlLoginFuncionario.Visible = true;
+            }
         }
 
-        #pnlLoginFuncionario .form-group label 
+        protected void btnGerenciarAgenda_Click(object sender, EventArgs e)
         {
-            display: inline-block;
-            width: 120px; /* Largura fixa para o label */
-            text-align: right; /* Alinha o texto do label perto do input */
-            margin-right: 15px; /* Espaço entre o label e o input */
-            margin-bottom: 0; /* Essencial para evitar quebra de linha */
-            color: #2d3436; /* Mantém a cor do texto do label */
+            if (Session["FuncionarioId"] == null)
+            {
+                MostrarMensagem("Sessão expirada. Faça login novamente.", System.Drawing.Color.Red);
+                OcultarTodosConteudos();
+                pnlLoginFuncionario.Visible = true;
+                return;
+            }
+            OcultarTodosConteudos();
+            pnlAgenda.Visible = true;
+            CarregarAgenda();
         }
 
-        /* Garante que o input utilize o restante do espaço */
-        #pnlLoginFuncionario .form-group input,
-        #pnlLoginFuncionario .form-group select
+        private void CarregarAgenda()
         {
-            /* CHAVE: Usa calc para garantir que o input preencha o espaço restante */
-            width: calc(100% - 135px); /* 100% - largura da label (120px) - margem (15px) */
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-            display: block;
+            DataTable dt = new DataTable();
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    const string query = @"
+                        SELECT 
+                            C.IdConsulta, 
+                            CL.Nome AS NomeCliente, 
+                            C.Servico, 
+                            C.NomePet, 
+                            C.Data, 
+                            C.Hora 
+                        FROM Consultas C
+                        INNER JOIN Clientes CL ON C.IdCliente = CL.IdCliente
+                        ORDER BY C.Data ASC, C.Hora ASC";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        SqlDataAdapter da = new SqlDataAdapter(cmd);
+                        da.Fill(dt);
+                    }
+                }
+
+                if (dt.Rows.Count > 0)
+                {
+                    string htmlTable = @"
+                        <table class='table table-bordered table-striped'>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Cliente</th>
+                                    <th>Serviço</th>
+                                    <th>Pet</th>
+                                    <th>Data</th>
+                                    <th>Hora</th>
+                                </tr>
+                            </thead>
+                            <tbody>";
+
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        string dataFormatada = Convert.ToDateTime(row["Data"]).ToShortDateString();
+
+                        htmlTable += $@"
+                            <tr>
+                                <td>{row["IdConsulta"]}</td>
+                                <td>{row["NomeCliente"]}</td>
+                                <td>{row["Servico"]}</td>
+                                <td>{row["NomePet"]}</td>
+                                <td>{dataFormatada}</td>
+                                <td>{row["Hora"]}</td>
+                            </tr>";
+                    }
+
+                    htmlTable += "</tbody></table>";
+                    lblAgendaConsultas.Text = htmlTable;
+                    MostrarMensagem($"Agenda carregada. Total de {dt.Rows.Count} agendamentos.", System.Drawing.Color.Blue);
+                }
+                else
+                {
+                    lblAgendaConsultas.Text = "<p>Não há consultas agendadas para a clínica.</p>";
+                    MostrarMensagem("Nenhuma consulta encontrada.", System.Drawing.Color.Orange);
+                }
+            }
+            catch (Exception ex)
+            {
+                lblAgendaConsultas.Text = $"<p class='text-danger'>Erro ao carregar a agenda: {ex.Message}</p>";
+            }
         }
-        
-        /* O botão Entrar deve ter 100% da largura do painel de login */
-        #pnlLoginFuncionario .btn-primary 
+
+        protected void btnCadastrarCliente_Click(object sender, EventArgs e)
         {
-            width: 100%;
-            margin-top: 25px; 
+            if (Session["FuncionarioId"] == null)
+            {
+                MostrarMensagem("Sessão expirada. Faça login novamente.", System.Drawing.Color.Red);
+                OcultarTodosConteudos();
+                pnlLoginFuncionario.Visible = true;
+                return;
+            }
+            OcultarTodosConteudos();
+            pnlCadastroCliente.Visible = true;
+            // Limpa os campos do formulário para um novo cadastro
+            LimparCamposCadastroCliente();
+            lblMensagemCadastroCliente.Text = "Preencha os dados do novo cliente.";
+            lblMensagemCadastroCliente.ForeColor = Color.Blue;
         }
-        /* === FIM DAS REGRAS CORRIGIDAS === */
 
-        /* Estilo para painéis de conteúdo como pnlAgenda e pnlCadastroCliente */
-        #pnlAgenda, #pnlCadastroCliente, #pnlOpcoesFuncionario 
+        protected void btnSalvarCliente_Click(object sender, EventArgs e)
         {
-            max-width: 800px; /* Alarga um pouco para a agenda e cadastro */
-            margin: 0 auto;
+            if (Session["FuncionarioId"] == null)
+            {
+                lblMensagemCadastroCliente.Text = "Sessão expirada. Faça login novamente.";
+                lblMensagemCadastroCliente.ForeColor = Color.Red;
+                OcultarTodosConteudos();
+                pnlLoginFuncionario.Visible = true;
+                return;
+            }
+
+            string nome = txtNomeCliente.Text.Trim();
+            string usuario = txtUsuarioCliente.Text.Trim();
+            string senha = txtSenhaCliente.Text; // Senha sem trim para permitir espaços intencionais, se necessário.
+            string email = txtEmailCliente.Text.Trim();
+            string telefone = txtTelefoneCliente.Text.Trim();
+            string endereco = txtEnderecoCliente.Text.Trim();
+            int idade = 0;
+            bool isIdadeValid = int.TryParse(txtIdadeCliente.Text.Trim(), out idade);
+
+            if (string.IsNullOrEmpty(nome) || string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(senha))
+            {
+                lblMensagemCadastroCliente.Text = "Nome, Usuário e Senha são campos obrigatórios.";
+                lblMensagemCadastroCliente.ForeColor = Color.Red;
+                return;
+            }
+
+            // Você pode adicionar validações de e-mail, telefone, etc. aqui.
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    // Verifica se o usuário já existe
+                    SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM Clientes WHERE Usuario = @Usuario", conn);
+                    checkCmd.Parameters.AddWithValue("@Usuario", usuario);
+                    if ((int)checkCmd.ExecuteScalar() > 0)
+                    {
+                        lblMensagemCadastroCliente.Text = "Já existe um cliente com este nome de usuário. Por favor, escolha outro.";
+                        lblMensagemCadastroCliente.ForeColor = Color.Red;
+                        return;
+                    }
+
+                    // Insere o novo cliente
+                    const string query = @"
+                        INSERT INTO Clientes (Nome, Usuario, Senha, Email, Telefone, Endereco, Idade) 
+                        VALUES (@Nome, @Usuario, @Senha, @Email, @Telefone, @Endereco, @Idade)";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Nome", nome);
+                        cmd.Parameters.AddWithValue("@Usuario", usuario);
+                        cmd.Parameters.AddWithValue("@Senha", senha);
+                        cmd.Parameters.AddWithValue("@Email", string.IsNullOrEmpty(email) ? (object)DBNull.Value : email);
+                        cmd.Parameters.AddWithValue("@Telefone", string.IsNullOrEmpty(telefone) ? (object)DBNull.Value : telefone);
+                        cmd.Parameters.AddWithValue("@Endereco", string.IsNullOrEmpty(endereco) ? (object)DBNull.Value : endereco);
+                        cmd.Parameters.AddWithValue("@Idade", isIdadeValid && idade > 0 ? (object)idade : DBNull.Value);
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            lblMensagemCadastroCliente.Text = $"Cliente '{nome}' cadastrado com sucesso!";
+                            lblMensagemCadastroCliente.ForeColor = Color.Green;
+                            LimparCamposCadastroCliente(); // Limpa os campos após o sucesso
+                        }
+                        else
+                        {
+                            lblMensagemCadastroCliente.Text = "Erro ao cadastrar o cliente. Tente novamente.";
+                            lblMensagemCadastroCliente.ForeColor = Color.Red;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                lblMensagemCadastroCliente.Text = $"Erro ao cadastrar cliente: {ex.Message}";
+                lblMensagemCadastroCliente.ForeColor = Color.Red;
+            }
         }
 
-
-        #lblMensagem
+        private void LimparCamposCadastroCliente()
         {
-            text-align:center;
-            font-weight: bold;
-            color: #2d3436;
-            margin-top: 20px;
-            display: block; /* Garante que a mensagem ocupe sua própria linha */
+            txtNomeCliente.Text = "";
+            txtUsuarioCliente.Text = "";
+            txtSenhaCliente.Text = "";
+            txtEmailCliente.Text = "";
+            txtTelefoneCliente.Text = "";
+            txtEnderecoCliente.Text = "";
+            txtIdadeCliente.Text = "";
         }
 
-        h2
+        protected void btnVoltarOpcoes_Click(object sender, EventArgs e)
         {
-            color: #2d3436;
-            font-weight: bold;
-            margin-bottom: 20px;
+            OcultarTodosConteudos();
+            pnlOpcoesFuncionario.Visible = true;
+            string nome = Session["FuncionarioNome"] as string;
+            lblMensagemFuncionarioBoasVindas.Text = $"Bem-vindo(a), {nome}! Escolha uma opção:";
+            MostrarMensagem("Selecione uma opção.", System.Drawing.Color.Blue); // Mensagem genérica ao voltar
         }
 
-        /* Botões gerais */
-        .btn
+        protected void btnSair_Click(object sender, EventArgs e)
         {
-            padding: 10px 22px;
-            border-radius: 8px;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 5px; /* Margem entre botões */
+            Session.Clear();
+            Session.Abandon();
+            Response.Redirect(Request.RawUrl); // Redireciona para a mesma página, reiniciando no login
         }
-
-        .btn-primary
-        {
-            background-color: #6c5ce7;
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background-color: #341f97;
-        }
-
-        .btn-secondary
-        {
-            background-color: #b2bec3;
-            color: #2d3436;
-        }
-
-        .btn-secondary:hover
-        {
-            background-color: #636e72;
-            color: #fff;
-        }
-
-        /* Regras genéricas para form-group (usadas fora do pnlLoginFuncionario) */
-        .form-group {
-            margin: 15px 0;
-            text-align: left; /* Ajustado para left, pois center estava causando problemas */
-        }
-
-        /* Labels genéricas (sobrescritas no pnlLoginFuncionario, mas aplicadas no pnlCadastroCliente) */
-        .form-group label
-        {
-            display: block;
-            margin-bottom: 5px;
-            color: #2d3436;
-        }
-
-        /* Inputs genéricos (sobrescritas no pnlLoginFuncionario, mas aplicadas no pnlCadastroCliente) */
-        .form-group input, .form-group select
-        {
-            width: 100%;
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-        }
-
-        /* Estilo para os cartões de opção */
-        .options-grid
-        {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
-        }
-
-        .option-card
-        {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .option-card:hover
-        {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .option-icon
-        {
-            font-size: 50px;
-            margin-bottom: 15px;
-        }
-
-        .consultas { color: #0984e3; } /* Cor para agenda */
-        .cadastro { color: #00b894; } /* Cor para cadastro */
-        .logout { color: #e84393; } /* Cor para sair */
-
-        .option-card h3
-        {
-            color: #2d3436;
-        }
-
-        /* Ajustes para inputs dentro de pnlCadastroCliente (PODE SER SIMPLIFICADO AGORA) */
-        #pnlCadastroCliente .form-group input {
-            width: 100%; /* Ajusta para preencher o painel de cadastro */
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-        }
-
-        #lblMensagem
-        {
-            text-align:center;
-           font-weight: bold;
-           color: #2d3436; /* Cor atual da label no seu CSS */
-           margin-top: 20px;
-           display: block;
-        }
-
-    </style>
-
-    <div class="container">
-
-        <%-- Painel de Login do Funcionário (Visível por padrão, oculto após login) --%>
-        <asp:Panel ID="pnlLoginFuncionario" runat="server">
-            <h2>Login Funcionário</h2>
-            <p>Insira seu ID e senha para acessar a área administrativa.</p>
-
-            <div class="form-group">
-                <asp:Label ID="lblFuncionarioId" runat="server" Text="ID Funcionário:"></asp:Label>
-                <asp:TextBox ID="txtFuncionarioId" runat="server"></asp:TextBox>
-            </div>
-
-            <div class="form-group">
-                <asp:Label ID="lblSenha" runat="server" Text="Senha:"></asp:Label>
-                <asp:TextBox ID="txtSenha" runat="server" TextMode="Password"></asp:TextBox>
-            </div>
-
-            <asp:Button ID="btnEntrar" runat="server" CssClass="btn btn-primary" Text="Entrar" OnClick="btnEntrar_Click" />
-        </asp:Panel>
-
-        <%-- NOVO Painel de Opções do Funcionário (Visível após login) --%>
-        <asp:Panel ID="pnlOpcoesFuncionario" runat="server" Visible="false">
-            <asp:Label ID="lblMensagemFuncionarioBoasVindas" runat="server" CssClass="d-block" Style="margin-bottom: 20px; font-size: 1.2em;"></asp:Label>
-            <p>Selecione uma das opções abaixo:</p>
-
-            <div class="options-grid">
-                
-                <%-- CARD 1: Gerenciar Agenda (CORRIGIDO PARA CLICAR) --%>
-                <div class="option-card" onclick="<%= Page.ClientScript.GetPostBackEventReference(btnGerenciarAgenda, string.Empty) %>">
-                    <div class="option-icon consultas">📅</div>
-                    <h3>Gerenciar Agenda</h3>
-                    <p>Visualize e organize os agendamentos.</p>
-                </div>
-
-                <%-- CARD 2: Cadastrar Clientes (CORRIGIDO PARA CLICAR) --%>
-                <div class="option-card" onclick="<%= Page.ClientScript.GetPostBackEventReference(btnCadastrarCliente, string.Empty) %>">
-                    <div class="option-icon cadastro">👥</div>
-                    <h3>Cadastrar Clientes</h3>
-                    <p>Registre novos clientes no sistema.</p>
-                </div>
-
-                <%-- CARD 3: Sair (CORRIGIDO PARA CLICAR) --%>
-                <div class="option-card" onclick="<%= Page.ClientScript.GetPostBackEventReference(btnSair, string.Empty) %>">
-                    <div class="option-icon logout">🚪</div>
-                    <h3>Sair</h3>
-                    <p>Encerre sua sessão administrativa.</p>
-                </div>
-            </div>
-
-            <%-- Botões ASP.NET (ocultos) que serão disparados pelo PostBack dos cards --%>
-            <asp:Button ID="btnGerenciarAgenda" runat="server" OnClick="btnGerenciarAgenda_Click" Visible="false" />
-            <asp:Button ID="btnCadastrarCliente" runat="server" OnClick="btnCadastrarCliente_Click" Visible="false" />
-            <asp:Button ID="btnSair" runat="server" OnClick="btnSair_Click" Visible="false" />
-        </asp:Panel>
-
-        <%-- Painel da Agenda de Consultas (Visível quando selecionado em opções) --%>
-        <asp:Panel ID="pnlAgenda" runat="server" Visible="false">
-            <h2>Agenda de Consultas</h2>
-            <asp:Label ID="lblAgendaConsultas" runat="server" Text="Carregando agenda..."></asp:Label>
-            
-            <div class="text-center mt-4">
-                <asp:Button ID="btnVoltarAgenda" runat="server" Text="Voltar às Opções" CssClass="btn btn-secondary" OnClick="btnVoltarOpcoes_Click" />
-            </div>
-        </asp:Panel>
-
-        <%-- NOVO Painel de Cadastro de Clientes --%>
-        <asp:Panel ID="pnlCadastroCliente" runat="server" Visible="false" Style="max-width: 500px; margin: 0 auto; text-align: left;">
-            <h2>Cadastrar Novo Cliente</h2>
-            <p>Preencha os dados do novo cliente:</p>
-
-            <div class="form-group">
-                <asp:Label ID="lblNomeCliente" runat="server" Text="Nome Completo:"></asp:Label>
-                <asp:TextBox ID="txtNomeCliente" runat="server" CssClass="form-control"></asp:TextBox>
-            </div>
-            <div class="form-group">
-                <asp:Label ID="lblUsuarioCliente" runat="server" Text="Usuário (login):"></asp:Label>
-                <asp:TextBox ID="txtUsuarioCliente" runat="server" CssClass="form-control"></asp:TextBox>
-            </div>
-            <div class="form-group">
-                <asp:Label ID="lblSenhaCliente" runat="server" Text="Senha:"></asp:Label>
-                <asp:TextBox ID="txtSenhaCliente" runat="server" TextMode="Password" CssClass="form-control"></asp:TextBox>
-            </div>
-            <div class="form-group">
-                <asp:Label ID="lblEmailCliente" runat="server" Text="E-mail:"></asp:Label>
-                <asp:TextBox ID="txtEmailCliente" runat="server" TextMode="Email" CssClass="form-control"></asp:TextBox>
-            </div>
-            <div class="form-group">
-                <asp:Label ID="lblTelefoneCliente" runat="server" Text="Telefone:"></asp:Label>
-                <asp:TextBox ID="txtTelefoneCliente" runat="server" CssClass="form-control"></asp:TextBox>
-            </div>
-            <div class="form-group">
-                <asp:Label ID="lblEnderecoCliente" runat="server" Text="Endereço:"></asp:Label>
-                <asp:TextBox ID="txtEnderecoCliente" runat="server" CssClass="form-control"></asp:TextBox>
-            </div>
-            <div class="form-group">
-                <asp:Label ID="lblIdadeCliente" runat="server" Text="Idade:"></asp:Label>
-                <asp:TextBox ID="txtIdadeCliente" runat="server" TextMode="Number" CssClass="form-control"></asp:TextBox>
-            </div>
-            
-            <div class="text-center mt-4">
-                <asp:Button ID="btnSalvarCliente" runat="server" Text="Cadastrar Cliente" CssClass="btn btn-primary" OnClick="btnSalvarCliente_Click" />
-                <asp:Button ID="btnVoltarCadastro" runat="server" Text="Voltar às Opções" CssClass="btn btn-secondary" OnClick="btnVoltarOpcoes_Click" />
-            </div>
-            <asp:Label ID="lblMensagemCadastroCliente" runat="server" CssClass="d-block mt-3"></asp:Label>
-        </asp:Panel>
-
-
-        <asp:Label ID="lblMensagem" runat="server"></asp:Label>
-
-    </div>
-</asp:Content>
+    }
+}
