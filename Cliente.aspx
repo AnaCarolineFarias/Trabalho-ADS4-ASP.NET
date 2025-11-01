@@ -395,4 +395,16 @@
 
         </div>
 
+    <script type="text/javascript">
+        function togglePasswordVisibility(inputClientId) {
+            var passwordInput = document.getElementById(inputClientId);
+            
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+            } else {
+                passwordInput.type = "password";
+            }
+        }
+    </script>
+
 </asp:Content>
