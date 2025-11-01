@@ -355,12 +355,71 @@ namespace PluxeePetADS4.Cliente
 
         protected void btnAgendar_Click(object sender, EventArgs e)
         {
-
-            if (/* Condição de sucesso */ true)
+            // 1. Verificar Sessão e Coletar Dados
+            if (Session["ClienteId"] == null)
             {
-                MostrarMensagem($"Consulta do pet agendada com sucesso!", System.Drawing.Color.Green);
+                MostrarMensagem("Sessão expirada. Faça login novamente.", Color.Red);
                 OcultarConteudo();
-                pnlOpcoes.Visible = true;
+                pnlLogin.Visible = true;
+                return;
+            }
+
+            int clienteId = (int)Session["ClienteId"];
+            string servico = ddlServico.SelectedValue;
+            string nomePet = txtPet.Text.Trim();
+            string data = txtData.Text.Trim();
+            string hora = txtHora.Text.Trim();
+
+            if (string.IsNullOrEmpty(servico) || string.IsNullOrEmpty(nomePet) || string.IsNullOrEmpty(data) || string.IsNullOrEmpty(hora))
+            {
+                MostrarMensagem("Por favor, preencha todos os campos do agendamento.", Color.Red);
+                pnlAgendamento.Visible = true;
+                return;
+            }
+
+            const string query = "INSERT INTO Consultas (IdCliente, Servico, NomePet, Data, Hora) VALUES (@IdCliente, @Servico, @NomePet, @Data, @Hora)";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand(query, connection))
+                {
+                  
+                    cmd.Parameters.AddWithValue("@IdCliente", clienteId);
+                    cmd.Parameters.AddWithValue("@Servico", servico);
+                    cmd.Parameters.AddWithValue("@NomePet", nomePet);
+                    cmd.Parameters.AddWithValue("@Data", data); // Usando a string de data (assumindo formato válido)
+                    cmd.Parameters.AddWithValue("@Hora", hora);
+
+                    try
+                    {
+                        connection.Open();
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            // Limpar e retornar para o menu de opções
+                            MostrarMensagem($"Consulta de {nomePet} para {servico} agendada com sucesso!", Color.Green);
+                            OcultarConteudo();
+                            pnlOpcoes.Visible = true;
+
+                            // Opcional: Limpar os campos do formulário após o sucesso
+                            txtPet.Text = "";
+                            txtData.Text = "";
+                            txtHora.Text = "";
+                            ddlServico.SelectedIndex = 0;
+                        }
+                        else
+                        {
+                            MostrarMensagem("Erro ao agendar a consulta. Tente novamente.", Color.Red);
+                            pnlAgendamento.Visible = true;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MostrarMensagem($"Erro ao agendar no banco de dados: {ex.Message}", Color.Red);
+                        pnlAgendamento.Visible = true;
+                    }
+                }
             }
         }
 
