@@ -20,17 +20,15 @@
 
         #pnlLogin
         {
-        max-width: 400px; /* Limita a largura do formulário de login */
-        margin: 0 auto; /* Centraliza o bloco de login dentro do container maior */
+        max-width: 400px;
+        margin: 0 auto; 
         }
 
-        /* Limita a largura dos campos de texto dentro do login para o novo max-width */
         #pnlLogin .form-group input, #pnlLogin .form-group select
         {
             width: 100%;
         }
 
-        /* Ajusta o tamanho dos botões */
         #pnlLogin .btn
         {
         width: 100%;
@@ -52,7 +50,6 @@
             margin-bottom: 20px;
         }
 
-        /* Botões gerais */
         .btn
         {
             padding: 10px 22px;
@@ -182,10 +179,9 @@
             padding: 8px;
             border-radius: 5px;
             border: 1px solid #ccc;
-            box-sizing: border-box; /* Adicionado para consistência */
+            box-sizing: border-box; 
         }
         
-        /* Ajuste para centralizar dropdown e textbox no painel de agendamento */
         #pnlAgendamento .form-group input, #pnlAgendamento .form-group select {
             width: 50%;
             margin-left: auto;
@@ -193,7 +189,6 @@
             display: block;
         }
         
-        /* Corrigido para todos os form-group que usam 100% de largura por padrão */
         #pnlLogin .form-group input, #pnlLogin .form-group select,
         #pnlEditarPerfil .form-group input, #pnlEditarPerfil .form-group select
         {
@@ -211,6 +206,31 @@
             color: #2d3436;
         }
 
+        .logout-container 
+        {
+            margin-top: 50px; 
+            text-align: center;
+        }
+
+        .btn-logout 
+        {
+            width: auto !important;
+            padding: 8px 18px; 
+            font-size: 14px;
+            background-color: transparent;
+            color: #d9534f; 
+            border: 1px solid #d9534f; 
+            border-radius: 20px;
+            display: inline-block; 
+        }
+
+        .btn-logout:hover 
+        {
+            background-color: #d9534f;
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
         .ocultar-via-css
         {
         display: none !important;
@@ -218,26 +238,26 @@
 
         .password-field
         {
-        padding-right: 40px !important; /* Espaço para o ícone */
+        padding-right: 40px !important; 
         }
 
         .password-toggle
         {
-        position: absolute; /* O FILHO é absoluto */
-        top: 50%; /* Alinha o topo do ícone com 50% da altura do wrapper */
+        position: absolute; 
+        top: 50%; 
         right: 10px;
-        transform: translateY(-50%); /* Move o ícone para cima em 50% da sua altura */
+        transform: translateY(-50%); 
         cursor: pointer;
         font-size: 18px;
         color: #6c5ce7;
         user-select: none;
-        pointer-events: auto; /* Garante que o clique funcione no ícone */
-        z-index: 10; /* Garante que o ícone esteja acima da caixa de texto */
+        pointer-events: auto; 
+        z-index: 10; 
         }
 
         .password-input-wrapper
         {
-        position: relative; /* O PAI é relativo */
+        position: relative; 
         width: 100%;
         }
 
@@ -298,9 +318,14 @@
                 </div>
             </div>
 
+            <div class="logout-container">
+            <asp:Button ID="btnSairEstilizado" runat="server" Text="Sair da Conta" CssClass="btn-logout" OnClick="btnSair_Click" />
+            </div>
+
             <asp:Button ID="btnAgendarServico" runat="server" OnClick="btnAgendarServico_Click" Visible="false" />
             <asp:Button ID="btnEditarPerfil" runat="server" OnClick="btnEditarPerfil_Click" Visible="false" />
             <asp:Button ID="btnVerificarConsultas" runat="server" OnClick="btnVerificarConsultas_Click" Visible="false" />
+            <asp:Button ID="btnSair" runat="server" OnClick="btnSair_Click" Visible="false" />
             
         </asp:Panel>
 
@@ -369,8 +394,8 @@
             
             <%-- Adicionado label para o campo Idade --%>
             <div class="form-group">
-                <asp:Label ID="lblIdade" runat="server" Text="Idade:"></asp:Label>
-                <asp:TextBox ID="txtIdadePerfil" runat="server" TextMode="Number" CssClass="form-control"></asp:TextBox>
+                <asp:Label ID="lblIdade" runat="server" Text="Data de Nascimento:"></asp:Label>
+                <asp:TextBox ID="txtIdadePerfil" runat="server" TextMode="Date" CssClass="form-control"></asp:TextBox>
             </div>
 
             <div class="form-group">
@@ -390,6 +415,8 @@
                 <asp:Button ID="Button1" runat="server" Text="Voltar" CssClass="btn btn-secondary" OnClick="btnVoltar_Click" />
             </div>
         </asp:Panel>
+
+
 
         <asp:Label ID="lblMensagem" runat="server"></asp:Label>
 
