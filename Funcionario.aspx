@@ -2,7 +2,6 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <style>
-        /* CSS REPLICADO DO CLIENTE.ASPX */
         body
         {
             background-color: #f5f6fa;
@@ -19,39 +18,35 @@
             text-align: center;
         }
 
-        /* === REGRAS CORRIGIDAS PARA O LOGIN HORIZONTAL (LABEL AO LADO DO CAMPO) === */
         #pnlLoginFuncionario
         {
-            max-width: 400px; /* Limita a largura do formulário de login */
-            margin: 0 auto; /* Centraliza o bloco de login dentro do container maior */
-            text-align: center; /* Centraliza o título e o botão */
+            max-width: 400px; 
+            margin: 0 auto; 
+            text-align: center; 
         }
        
-        /* Aplica Flexbox para alinhamento horizontal (Label e Input lado a lado) */
         #pnlLoginFuncionario .form-group 
         {
             text-align: left;
-            display: flex; /* CHAVE: Habilita o alinhamento horizontal */
-            align-items: center; /* Centraliza verticalmente */
+            display: flex; 
+            align-items: center; 
             margin: 15px 0;
         }
 
         #pnlLoginFuncionario .form-group label 
         {
             display: inline-block;
-            width: 120px; /* Largura fixa para o label */
-            text-align: right; /* Alinha o texto do label perto do input */
-            margin-right: 15px; /* Espaço entre o label e o input */
-            margin-bottom: 0; /* Essencial para evitar quebra de linha */
-            color: #2d3436; /* Mantém a cor do texto do label */
+            width: 120px; 
+            text-align: right; 
+            margin-right: 15px; 
+            margin-bottom: 0; 
+            color: #2d3436; 
         }
 
-        /* Garante que o input utilize o restante do espaço */
         #pnlLoginFuncionario .form-group input,
         #pnlLoginFuncionario .form-group select
         {
-            /* CHAVE: Usa calc para garantir que o input preencha o espaço restante */
-            width: calc(100% - 135px); /* 100% - largura da label (120px) - margem (15px) */
+            width: calc(100% - 135px); 
             padding: 8px;
             border-radius: 5px;
             border: 1px solid #ccc;
@@ -59,18 +54,15 @@
             display: block;
         }
        
-        /* O botão Entrar deve ter 100% da largura do painel de login */
         #pnlLoginFuncionario .btn-primary 
         {
             width: 100%;
             margin-top: 25px; 
         }
-        /* === FIM DAS REGRAS CORRIGIDAS === */
 
-        /* Estilo para painéis de conteúdo como pnlAgenda e pnlCadastroCliente */
         #pnlAgenda, #pnlCadastroCliente, #pnlCadastroFuncionario, #pnlDesativarFuncionario, #pnlDesativarCliente, #pnlOpcoesFuncionario 
         {
-            max-width: 800px; /* Alarga um pouco para a agenda e cadastro */
+            max-width: 800px; 
             margin: 0 auto;
         }
 
@@ -81,7 +73,7 @@
             font-weight: bold;
             color: #2d3436;
             margin-top: 20px;
-            display: block; /* Garante que a mensagem ocupe sua própria linha */
+            display: block;
         }
 
         h2
@@ -91,7 +83,6 @@
             margin-bottom: 20px;
         }
 
-        /* Botões gerais */
         .btn
         {
             padding: 10px 22px;
@@ -100,7 +91,7 @@
             font-size: 16px;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin: 5px; /* Margem entre botões */
+            margin: 5px; 
         }
 
         .btn-primary
@@ -125,7 +116,6 @@
             color: #fff;
         }
        
-        /* Botão de Desativar */
         .btn-danger {
              background-color: #e74c3c;
              color: #fff;
@@ -134,13 +124,11 @@
              background-color: #c0392b;
         }
 
-        /* Regras genéricas para form-group (usadas fora do pnlLoginFuncionario) */
         .form-group {
             margin: 15px 0;
-            text-align: left; /* Ajustado para left, pois center estava causando problemas */
+            text-align: left; 
         }
 
-        /* Labels genéricas (sobrescritas no pnlLoginFuncionario, mas aplicadas no pnlCadastroCliente) */
         .form-group label
         {
             display: block;
@@ -148,7 +136,6 @@
             color: #2d3436;
         }
 
-        /* Inputs genéricos (sobrescritas no pnlLoginFuncionario, mas aplicadas no pnlCadastroCliente) */
         .form-group input, .form-group select
         {
             width: 100%;
@@ -158,7 +145,6 @@
             box-sizing: border-box;
         }
 
-        /* Estilo para os cartões de opção */
         .options-grid
         {
             display: grid;
@@ -189,19 +175,18 @@
             margin-bottom: 15px;
         }
 
-        .consultas { color: #0984e3; } /* Cor para agenda */
-        .cadastro { color: #00b894; } /* Cor para cadastro */
-        .logout { color: #e84393; } /* Cor para sair */
-        .funcionarios { color: #8e44ad; } /* NOVA COR para Funcionário */
+        .consultas { color: #0984e3; } 
+        .cadastro { color: #00b894; } 
+        .logout { color: #e84393; } 
+        .funcionarios { color: #8e44ad; } 
 
         .option-card h3
         {
             color: #2d3436;
         }
 
-        /* Ajustes para inputs dentro de pnlCadastroCliente (PODE SER SIMPLIFICADO AGORA) */
         #pnlCadastroCliente .form-group input {
-            width: 100%; /* Ajusta para preencher o painel de cadastro */
+            width: 100%; 
             padding: 8px;
             border-radius: 5px;
             border: 1px solid #ccc;
@@ -212,7 +197,7 @@
         {
             text-align:center;
             font-weight: bold;
-            color: #2d3436; /* Cor atual da label no seu CSS */
+            color: #2d3436; 
             margin-top: 20px;
             display: block;
         }
@@ -223,15 +208,15 @@
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 25px;
             margin-top: 20px;
-            margin-bottom: 40px; /* Adiciona espaço abaixo do bloco Gerente */
-            padding: 20px; /* Adiciona padding para o bloco Gerente não parecer 'grudado' */
+            margin-bottom: 40px; 
+            padding: 20px; 
             border-radius: 15px;
-            border: 1px solid #dfe6e9; /* Borda sutil para diferenciar o bloco */
+            border: 1px solid #dfe6e9; 
         }
 
         .admin-card 
         {
-            background: #eaf1ff; /* Um azul claro suave */
+            background: #eaf1ff; 
         }
 
         .admin-card:hover 
@@ -239,26 +224,24 @@
             background: #d4e3ff; 
         }
        
-        /* Estilo para o campo de busca (Desativar Funcionário/Cliente) */
         .search-group {
             display: flex;
-            align-items: center; /* Alinha verticalmente label, input e botão */
+            align-items: center; 
             gap: 10px;
             margin-bottom: 20px;
         }
        
-        /* A Label da busca deve ter uma largura definida para alinhamento */
         #pnlDesativarFuncionario .search-group label,
         #pnlDesativarCliente .search-group label {
             display: block;
             margin-bottom: 0;
-            width: 100px; /* Ajuste a largura do label conforme necessário */
+            width: 100px; 
             text-align: right;
         }
 
         .search-group input {
             flex-grow: 1;
-            width: auto; /* Sobrescreve a largura de 100% dos inputs genéricos */
+            width: auto; 
         }
        
         .funcionario-details, .cliente-details {
@@ -269,7 +252,6 @@
             text-align: left;
         }
        
-        /* --- NOVO ESTILO PARA O GRIDVIEW DE FUNCIONÁRIOS --- */
         .funcionario-grid, .cliente-grid {
             width: 100%;
             border-collapse: collapse;
@@ -294,14 +276,9 @@
         }
 
         .funcionario-grid tr:nth-child(even) td, .cliente-grid tr:nth-child(even) td {
-            background-color: #f5f6fa; /* Fundo levemente cinza para linhas pares */
+            background-color: #f5f6fa; 
         }
 
-        /* Oculta os detalhes que só aparecem após a busca individual (se a tabela estiver visível) */
-        /* #pnlDetalhesFuncionario, #pnlDetalhesCliente {
-             display: none; /* Inicia oculto e só é exibido via code-behind após busca por ID */
-        /* } */
-       
         .gridview-header {
             font-size: 1.1em;
             font-weight: bold;
@@ -311,7 +288,6 @@
             text-align: left;
         }
        
-        /* Ajuste para o botão de Desativar dentro do GridView */
         .gridview-desativar-btn {
             padding: 5px 10px;
             font-size: 14px;
@@ -382,21 +358,35 @@
                         <p>Registre novos colaboradores.</p>
                     </div>
 
-                    <%-- CARD G2: Verificar Consultas no Sistema --%>
+                    <%-- CARD G2: EDITAR PERFIL DO FUNCIONÁRIO --%>
+                <div class="option-card admin-card" onclick="<%= Page.ClientScript.GetPostBackEventReference(btnAcessarEdicaoFuncionario, string.Empty) %>">
+                    <div class="option-icon" style="color: #f39c12;">✍️</div>
+                    <h3>Editar Funcionário</h3>
+                    <p>Alterar dados do colaborador.</p>
+                </div>
+
+                    <%-- CARD G3: EDITAR PERFIL DO CLIENTE --%>
+                 <div class="option-card admin-card" onclick="<%= Page.ClientScript.GetPostBackEventReference(btnAcessarEdicaoCliente, string.Empty) %>">
+                    <div class="option-icon" style="color: #6c5ce7;">📝</div>
+                    <h3>Editar Cliente</h3>
+                    <p>Alterar dados cadastrais de um cliente.</p>
+                </div>
+
+                    <%-- CARD G3: Verificar Consultas no Sistema --%>
                     <div class="option-card admin-card" onclick="<%= Page.ClientScript.GetPostBackEventReference(btnVerificarConsultasSistema, string.Empty) %>">
                         <div class="option-icon" style="color: #3498db;">📊</div>
                         <h3>Consultas Sistema</h3>
                         <p>Ver todos os agendamentos.</p>
                     </div>
 
-                    <%-- CARD G3: Desativar Funcionários --%>
+                    <%-- CARD G4: Desativar Funcionários --%>
                     <div class="option-card admin-card" onclick="<%= Page.ClientScript.GetPostBackEventReference(btnDesativarFuncionario, string.Empty) %>">
                         <div class="option-icon" style="color: #e74c3c;">🚫</div>
                         <h3>Desativar Funcionário</h3>
                         <p>Suspender acesso de colaborador.</p>
                     </div>
                    
-                    <%-- CARD G4: Desativar Clientes --%>
+                    <%-- CARD G5: Desativar Clientes --%>
                     <div class="option-card admin-card" onclick="<%= Page.ClientScript.GetPostBackEventReference(btnDesativarCliente, string.Empty) %>">
                         <div class="option-icon" style="color: #95a5a6;">❌</div>
                         <h3>Desativar Cliente</h3>
@@ -404,10 +394,13 @@
                     </div>
 
                 </div>
+
             </asp:Panel>
 
             <%-- Botões ASP.NET (ocultos) que serão disparados pelo PostBack dos cards --%>
             <asp:Button ID="btnGerenciarAgenda" runat="server" OnClick="btnGerenciarAgenda_Click" Visible="false" />
+            <asp:Button ID="btnAcessarEdicaoFuncionario" runat="server" OnClick="btnAcessarEdicaoFuncionario_Click" Visible="false" />
+            <asp:Button ID="btnAcessarEdicaoCliente" runat="server" OnClick="btnAcessarEdicaoCliente_Click" Visible="false" />
             <asp:Button ID="btnCadastrarCliente" runat="server" OnClick="btnCadastrarCliente_Click" Visible="false" />
             <asp:Button ID="btnSair" runat="server" OnClick="btnSair_Click" Visible="false" />
             <asp:Button ID="btnCadastrarFuncionario" runat="server" OnClick="btnCadastrarFuncionario_Click" Visible="false" />
@@ -435,35 +428,42 @@
                 <asp:Label ID="lblNomeCliente" runat="server" Text="Nome Completo:"></asp:Label>
                 <asp:TextBox ID="txtNomeCliente" runat="server" CssClass="form-control"></asp:TextBox>
             </div>
+
             <div class="form-group">
                 <asp:Label ID="lblUsuarioCliente" runat="server" Text="Usuário (login):"></asp:Label>
                 <asp:TextBox ID="txtUsuarioCliente" runat="server" CssClass="form-control"></asp:TextBox>
             </div>
+
             <div class="form-group">
                 <asp:Label ID="lblSenhaCliente" runat="server" Text="Senha:"></asp:Label>
                 <asp:TextBox ID="txtSenhaCliente" runat="server" TextMode="Password" CssClass="form-control"></asp:TextBox>
             </div>
+
             <div class="form-group">
                 <asp:Label ID="lblEmailCliente" runat="server" Text="E-mail:"></asp:Label>
                 <asp:TextBox ID="txtEmailCliente" runat="server" TextMode="Email" CssClass="form-control"></asp:TextBox>
             </div>
+
             <div class="form-group">
                 <asp:Label ID="lblTelefoneCliente" runat="server" Text="Telefone:"></asp:Label>
                 <asp:TextBox ID="txtTelefoneCliente" runat="server" CssClass="form-control"></asp:TextBox>
             </div>
+
             <div class="form-group">
                 <asp:Label ID="lblEnderecoCliente" runat="server" Text="Endereço:"></asp:Label>
                 <asp:TextBox ID="txtEnderecoCliente" runat="server" CssClass="form-control"></asp:TextBox>
             </div>
+
             <div class="form-group">
-                <asp:Label ID="lblIdadeCliente" runat="server" Text="Idade:"></asp:Label>
-                <asp:TextBox ID="txtIdadeCliente" runat="server" TextMode="Number" CssClass="form-control"></asp:TextBox>
+                <asp:Label ID="lblIdadeCliente" runat="server" Text="Data de Nascimento:"></asp:Label>
+                <asp:TextBox ID="txtIdadeCliente" runat="server" TextMode="Date" CssClass="form-control"></asp:TextBox>
             </div>
            
             <div class="text-center mt-4">
                 <asp:Button ID="btnSalvarCliente" runat="server" Text="Cadastrar Cliente" CssClass="btn btn-primary" OnClick="btnSalvarCliente_Click" />
                 <asp:Button ID="btnVoltarCadastro" runat="server" Text="Voltar às Opções" CssClass="btn btn-secondary" OnClick="btnVoltarOpcoes_Click" />
             </div>
+
             <asp:Label ID="lblMensagemCadastroCliente" runat="server" CssClass="d-block mt-3"></asp:Label>
         </asp:Panel>
 
@@ -478,13 +478,13 @@
             </div>
 
             <div class="form-group">
-                <asp:Label ID="lblSenhaFunc" runat="server" Text="Senha Inicial:"></asp:Label>
-                <asp:TextBox ID="txtSenhaFunc" runat="server" TextMode="Password" CssClass="form-control"></asp:TextBox>
+                <asp:Label ID="lblCpfFunc" runat="server" Text="CPF:"></asp:Label>
+                <asp:TextBox ID="txtCpfFunc" runat="server" CssClass="form-control" MaxLength="14" placeholder="000.000.000-00"></asp:TextBox>
             </div>
 
             <div class="form-group">
-                <asp:Label ID="lblCargoFunc" runat="server" Text="Cargo/ID Cargo (Ex: 1-Veterinário, 4-Gerente):"></asp:Label>
-                <asp:TextBox ID="txtCargoFunc" runat="server" TextMode="Number" CssClass="form-control"></asp:TextBox>
+                <asp:Label ID="lblSenhaFunc" runat="server" Text="Senha Inicial:"></asp:Label>
+                <asp:TextBox ID="txtSenhaFunc" runat="server" TextMode="Password" CssClass="form-control"></asp:TextBox>
             </div>
 
             <div class="text-center mt-4">
@@ -494,11 +494,143 @@
 
             <asp:Label ID="lblMensagemCadastroFuncionario" runat="server" CssClass="d-block mt-3"></asp:Label>
         </asp:Panel>
-       
+
+        <asp:Panel ID="pnlEditarFuncionario" runat="server" Visible="false" Style="max-width: 600px; margin: 0 auto; text-align: left;">
+    <h2>✍️ Editar Perfil de Funcionário</h2>
+
+    <%-- 1. Pesquisa/Seleção do Funcionário --%>
+    <div class="card p-3 mb-4">
+        <h4 class="card-title">Buscar Funcionário para Edição</h4>
+        <div class="form-group row">
+
+            <asp:Label ID="lblFuncIdPesquisa" runat="server" Text="Nome do Funcionário:" CssClass="col-sm-4 col-form-label"></asp:Label>
+            <div class="col-sm-5">
+                <asp:TextBox ID="txtFuncIdPesquisa" runat="server" CssClass="form-control" placeholder="Digite o nome ou ID"></asp:TextBox>
+            </div>
+
+            <div class="col-sm-3">
+                <asp:Button ID="Button1" runat="server" Text="Buscar" CssClass="btn btn-info btn-block" OnClick="btnBuscarFuncionarioParaEdicao_Click" />
+            </div>
+
+        </div>
+        <asp:Label ID="lblStatusBuscaFuncionario" runat="server" CssClass="d-block mt-2"></asp:Label>
+    </div>
+
+    <%-- 2. Formulário de Edição (Inicialmente Oculto) --%>
+    <asp:Panel ID="pnlFormularioEdicaoFuncionario" runat="server" Visible="false">
+        <h4 style="margin-top: 20px;">Editando Funcionário ID: <asp:Label ID="lblIdFuncionarioEdicao" runat="server" Font-Bold="true"></asp:Label></h4>
+        <hr/>
+
+        <div class="form-group">
+            <asp:Label ID="lblNomeEdicao" runat="server" Text="Nome Completo:"></asp:Label>
+            <asp:TextBox ID="txtNomeEdicao" runat="server" CssClass="form-control"></asp:TextBox>
+        </div>
+        
+        <div class="form-group">
+            <asp:Label ID="lblCpfEdicao" runat="server" Text="CPF:"></asp:Label>
+            <asp:TextBox ID="txtCpfEdicao" runat="server" CssClass="form-control" MaxLength="14"></asp:TextBox>
+        </div>
+
+        <div class="form-group">
+            <asp:Label ID="lblEmailEdicao" runat="server" Text="Email:"></asp:Label>
+            <asp:TextBox ID="txtEmailEdicao" runat="server" TextMode="Email" CssClass="form-control"></asp:TextBox>
+        </div>
+
+        <div class="form-group">
+            <asp:Label ID="lblTelefoneEdicao" runat="server" Text="Telefone:"></asp:Label>
+            <asp:TextBox ID="txtTelefoneEdicao" runat="server" CssClass="form-control" MaxLength="20" placeholder="(99) 99999-9999"></asp:TextBox>
+        </div>
+        
+        <div class="form-group">
+            <asp:Label ID="lblDataAdmissaoEdicao" runat="server" Text="Data de Admissão:"></asp:Label>
+            <asp:TextBox ID="txtDataAdmissaoEdicao" runat="server" TextMode="Date" CssClass="form-control"></asp:TextBox>
+        </div>
+
+        <div class="form-group">
+            <asp:Label ID="lblNovaSenhaEdicao" runat="server" Text="Nova Senha (Deixe em branco para manter a atual):"></asp:Label>
+            <asp:TextBox ID="txtNovaSenhaEdicao" runat="server" TextMode="Password" CssClass="form-control"></asp:TextBox>
+        </div>
+
+        <div class="text-center mt-4">
+            <asp:Button ID="btnSalvarEdicaoFuncionario" runat="server" Text="Salvar Alterações" CssClass="btn btn-success" OnClick="btnSalvarEdicaoFuncionario_Click" />
+            <asp:Button ID="btnCancelarEdicaoFuncionario" runat="server" Text="Voltar" CssClass="btn btn-secondary" OnClick="btnVoltarOpcoes_Click" />
+        </div>
+
+        <asp:Label ID="lblMensagemEdicaoFuncionario" runat="server" CssClass="d-block mt-3"></asp:Label>
+    </asp:Panel>
+
+</asp:Panel>
+
+        <%-- Painel de Edição de Clientes (Somente Gerente) --%>
+        <asp:Panel ID="pnlEditarCliente" runat="server" Visible="false" Style="max-width: 600px; margin: 0 auto; text-align: left;">
+    
+    <h2><span style="font-size: 1.5em;">✍️</span> Editar Perfil de Cliente</h2>
+
+    <div class="card p-3 mb-4">
+        <h4 class="card-title">Buscar Cliente para Edição</h4>
+        
+        <asp:Panel ID="pnlBuscaCliente" runat="server" DefaultButton="btnBuscarCliente">
+            <div class="form-group row">
+
+                <asp:Label ID="lblBuscaCliente" runat="server" Text="Nome do Cliente:" CssClass="col-sm-4 col-form-label"></asp:Label>
+                <div class="col-sm-5">
+                    <asp:TextBox ID="txtClienteNomeOuIdPesquisa" runat="server" CssClass="form-control" placeholder="Digite o nome ou ID"></asp:TextBox>
+                </div>
+
+                <div class="col-sm-3">
+                    <asp:Button ID="btnBuscarCliente" runat="server" Text="Buscar" CssClass="btn btn-primary btn-block" OnClick="btnBuscarCliente_Click" />
+                </div>
+                
+            </div>
+        </asp:Panel>
+        <asp:Label ID="lblStatusBuscaCliente" runat="server" CssClass="d-block mt-2"></asp:Label>
+    </div>
+
+    <%-- 2. Formulário de Edição (Inicialmente Oculto) --%>
+    <asp:Panel ID="pnlFormularioEdicaoCliente" runat="server" Visible="false">
+        <h4 style="margin-top: 20px;">Editando Cliente ID: <asp:Label ID="lblIdClienteEdicao" runat="server" FontBold="true"></asp:Label></h4>
+        <hr/>
+
+        <div class="form-group">
+            <asp:Label ID="lblNomeClienteEdit" runat="server" Text="Nome Completo:"></asp:Label>
+            <asp:TextBox ID="txtNomeEdicaoCliente" runat="server" CssClass="form-control" required="required"></asp:TextBox>
+        </div>
+        
+        <div class="form-group">
+            <asp:Label ID="lblEmailClienteEdit" runat="server" Text="Email:"></asp:Label>
+            <asp:TextBox ID="txtEmailEdicaoCliente" runat="server" CssClass="form-control" TextMode="Email"></asp:TextBox>
+        </div>
+        
+        <div class="form-group">
+            <asp:Label ID="lblTelClienteEdit" runat="server" Text="Telefone:"></asp:Label>
+            <asp:TextBox ID="txtTelefoneEdicaoCliente" runat="server" CssClass="form-control"></asp:TextBox>
+        </div>
+        
+        <div class="form-group">
+            <asp:Label ID="lblEnderecoClienteEdit" runat="server" Text="Endereço:"></asp:Label>
+            <asp:TextBox ID="txtEnderecoEdicaoCliente" runat="server" CssClass="form-control"></asp:TextBox>
+        </div>
+        
+        <div class="form-group">
+            <asp:Label ID="lbDataNascimentoClienteEdit" runat="server" Text="Data de Nascimento:"></asp:Label>
+            <asp:TextBox ID="txtDataNascimentoEdicaoCliente" runat="server" CssClass="form-control" TextMode="Date" required="required"></asp:TextBox>
+        </div>
+
+        <div class="text-center mt-4">
+            <asp:Button ID="btnSalvarEdicaoCliente" runat="server" Text="Salvar Alterações" CssClass="btn btn-success" OnClick="btnSalvarEdicaoCliente_Click" />
+            <asp:Button ID="btnVoltarEdicaoCliente" runat="server" Text="Voltar" CssClass="btn btn-secondary" OnClick="btnVoltarOpcoesGerente_Click" />
+        </div>
+        
+        <asp:Label ID="lblMensagemEdicaoCliente" runat="server" CssClass="d-block mt-3"></asp:Label>
+
+    </asp:Panel>
+    
+</asp:Panel>
+
         <%-- Painel de Desativação de Funcionário (CORRIGIDO com pnlDetalhesFuncionario e Labels) --%>
         <asp:Panel ID="pnlDesativarFuncionario" runat="server" Visible="false" Style="max-width: 800px; margin: 0 auto; text-align: left;">
             <h2>🚫 Desativar Funcionário</h2>
-            <p>Pesquise o funcionário por nome ou ID, ou selecione na lista abaixo.</p>
+            <p>Pesquise o funcionário por nome ou ID.</p>
 
             <%-- Área de Busca (Por Nome ou ID) --%>
             <div class="search-group">
@@ -509,7 +641,7 @@
            
             <asp:Label ID="lblMensagemDesativarFuncionario" runat="server" CssClass="d-block mt-3"></asp:Label>
 
-            <%-- Detalhes do Funcionário (Adicionado para resolver erros) --%>
+            <%-- Detalhes do Funcionário --%>
             <asp:Panel ID="pnlDetalhesFuncionario" runat="server" Visible="false" CssClass="funcionario-details">
                 <p style="font-weight: bold; margin-bottom: 5px;">Detalhes do Funcionário:</p>
                 <asp:Label ID="lblFuncionarioNome" runat="server" Style="display: block; font-weight: bold;"></asp:Label>
@@ -520,6 +652,7 @@
                     <asp:Button ID="btnConfirmarDesativacaoFunc" runat="server" Text="Confirmar Desativação" CssClass="btn btn-danger" 
                         CommandArgument="0" OnClick="btnConfirmarDesativacaoFunc_Click" Visible="false" />
                 </div>
+
             </asp:Panel>
 
             <%-- Tabela/Grid de Funcionários --%>
@@ -554,7 +687,7 @@
             </div>
         </asp:Panel>
        
-        <%-- Painel de Desativação de Cliente (CORRIGIDO com lblClienteUsuario) --%>
+        <%-- Painel de Desativação de Cliente --%>
         <asp:Panel ID="pnlDesativarCliente" runat="server" Visible="false" Style="max-width: 800px; margin: 0 auto; text-align: left;">
             <h2>❌ Desativar Cliente</h2>
             <p>Pesquise o cliente por ID, ou selecione na lista abaixo.</p>
@@ -568,7 +701,7 @@
 
             <asp:Label ID="lblMensagemDesativarCliente" runat="server" CssClass="d-block mt-3"></asp:Label>
            
-            <%-- Detalhes do Cliente (Inicia oculto, aparece após busca) --%>
+            <%-- Detalhes do Cliente --%>
             <asp:Panel ID="pnlDetalhesCliente" runat="server" Visible="false" CssClass="cliente-details">
                 <p style="font-weight: bold; margin-bottom: 5px;">Detalhes do Cliente:</p>
                 <asp:Label ID="lblClienteNome" runat="server" Style="display: block; font-weight: bold;"></asp:Label>
