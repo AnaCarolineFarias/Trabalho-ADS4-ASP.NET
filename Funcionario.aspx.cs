@@ -23,7 +23,7 @@ namespace PluxeePetADS4.Funcionario
                 }
                 else
                 {
-                    // Se já estiver logado, vai para as opções do funcionário
+                    
                     OcultarTodosConteudos();
                     pnlOpcoesFuncionario.Visible = true;
                     ConfigurarOpcoesFuncionario();
@@ -31,7 +31,7 @@ namespace PluxeePetADS4.Funcionario
             }
             else
             {
-                // Se for PostBack e estiver logado, reconfigura o painel do gerente
+                
                 if (Session["FuncionarioId"] != null)
                 {
                     ConfigurarOpcoesFuncionario();
@@ -43,7 +43,7 @@ namespace PluxeePetADS4.Funcionario
         {
             int id = (int)Session["FuncionarioId"];
             string nome = Session["FuncionarioNome"] as string;
-            
+
             if (id == 4)
             {
                 pnlOpcoesGerente.Visible = true;
@@ -106,6 +106,16 @@ namespace PluxeePetADS4.Funcionario
             {
                 pnlDetalhesCliente.Visible = false;
             }
+
+            if (pnlEditarFuncionario != null)
+            {
+                pnlEditarFuncionario.Visible = false;
+            }
+
+            if (pnlEditarCliente != null)
+            {
+                pnlEditarCliente.Visible = false;
+            }
         }
 
         private void MostrarMensagem(string texto, System.Drawing.Color cor)
@@ -138,7 +148,7 @@ namespace PluxeePetADS4.Funcionario
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-        
+
                     const string query = @"SELECT IdFuncionario, Nome FROM Funcionarios WHERE IdFuncionario = @id AND Senha = @senha AND Ativo = 1";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
@@ -223,7 +233,7 @@ namespace PluxeePetADS4.Funcionario
 
                 if (dt.Rows.Count > 0)
                 {
-                    // Lógica para montar a tabela HTML (já existente)
+           
                     string htmlTable = @"
                         <table class='table table-bordered table-striped'>
                             <thead>
@@ -274,6 +284,190 @@ namespace PluxeePetADS4.Funcionario
             AbrePainelCadastroCliente();
         }
 
+        protected void btnAcessarEdicaoCliente_Click(object sender, EventArgs e)
+        {
+            OcultarTodosConteudos();
+            pnlEditarCliente.Visible = true; 
+            lblStatusBuscaCliente.Text = string.Empty;
+            pnlFormularioEdicaoCliente.Visible = false;
+            txtClienteNomeOuIdPesquisa.Text = string.Empty;
+        }
+
+        protected void btnBuscarCliente_Click(object sender, EventArgs e)
+        {
+            pnlFormularioEdicaoCliente.Visible = false;
+            lblStatusBuscaCliente.Text = string.Empty;
+            lblMensagemEdicaoCliente.Text = string.Empty;
+
+            string termoBusca = txtClienteNomeOuIdPesquisa.Text.Trim();
+
+            if (string.IsNullOrEmpty(termoBusca))
+            {
+                lblStatusBuscaCliente.Text = "⚠️ Por favor, insira o Nome ou ID do cliente para buscar.";
+                lblStatusBuscaCliente.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    const string query = @"
+                        SELECT
+                        IdCliente,
+                        Nome,
+                        Email,
+                        Telefone,
+                        Endereco,
+                        DataNascimento
+                        FROM Clientes
+                        WHERE Ativo = 1 AND (IdCliente = @termoId OR Nome LIKE @termoNome)"; // Garante que busca apenas clientes ativos
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        int clienteId;
+
+                        if (int.TryParse(termoBusca, out clienteId))
+                        {
+                            cmd.Parameters.AddWithValue("@termoId", clienteId);
+                            cmd.Parameters.AddWithValue("@termoNome", DBNull.Value);
+                        }
+                        else
+                        {
+                            cmd.Parameters.AddWithValue("@termoId", DBNull.Value);
+                            cmd.Parameters.AddWithValue("@termoNome", "%" + termoBusca + "%");
+                        }
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                int id = reader.GetInt32(reader.GetOrdinal("IdCliente"));
+                                string nome = reader["Nome"].ToString();
+
+                                lblIdClienteEdicao.Text = id.ToString();
+                                txtNomeEdicaoCliente.Text = nome;
+                                txtEmailEdicaoCliente.Text = reader["Email"] == DBNull.Value ? string.Empty : reader["Email"].ToString();
+                                txtTelefoneEdicaoCliente.Text = reader["Telefone"] == DBNull.Value ? string.Empty : reader["Telefone"].ToString();
+                                txtEnderecoEdicaoCliente.Text = reader["Endereco"] == DBNull.Value ? string.Empty : reader["Endereco"].ToString();
+
+                                if (reader["DataNascimento"] != DBNull.Value)
+                                {
+                                    txtDataNascimentoEdicaoCliente.Text = ((DateTime)reader["DataNascimento"]).ToString("yyyy-MM-dd");
+                                }
+                                else
+                                {
+                                    txtDataNascimentoEdicaoCliente.Text = string.Empty;
+                                }
+
+                                pnlFormularioEdicaoCliente.Visible = true;
+                                lblStatusBuscaCliente.Text = $"✅ Cliente {nome} (ID {id}) carregado para edição.";
+                                lblStatusBuscaCliente.ForeColor = System.Drawing.Color.Green;
+                            }
+                            else
+                            {
+                                lblStatusBuscaCliente.Text = $"❌ Cliente '{termoBusca}' não encontrado ou inativo.";
+                                lblStatusBuscaCliente.ForeColor = System.Drawing.Color.Red;
+                                pnlFormularioEdicaoCliente.Visible = false;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                lblStatusBuscaCliente.Text = $"🛑 ERRO CRÍTICO NO BANCO/CÓDIGO: {ex.Message}";
+                lblStatusBuscaCliente.ForeColor = System.Drawing.Color.DarkRed;
+                pnlFormularioEdicaoCliente.Visible = false;
+            }
+        }
+
+        protected void btnSalvarEdicaoCliente_Click(object sender, EventArgs e)
+        {
+            lblMensagemEdicaoCliente.Text = string.Empty;
+
+            if (!int.TryParse(lblIdClienteEdicao.Text, out int idCliente))
+            {
+                lblMensagemEdicaoCliente.Text = "ID de cliente para edição não está definido. Busque novamente.";
+                lblMensagemEdicaoCliente.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            string novoNome = txtNomeEdicaoCliente.Text.Trim();
+            string novoEmail = txtEmailEdicaoCliente.Text.Trim();
+            string novoTelefone = txtTelefoneEdicaoCliente.Text.Trim();
+            string novaDataNascimentoStr = txtDataNascimentoEdicaoCliente.Text.Trim();
+            string novoEndereco = txtEnderecoEdicaoCliente.Text.Trim();
+            DateTime novaDataNascimento;
+
+            if (string.IsNullOrEmpty(novoNome) || string.IsNullOrEmpty(novaDataNascimentoStr))
+            {
+                lblMensagemEdicaoCliente.Text = "Nome e Data de Nascimento são obrigatórios.";
+                lblMensagemEdicaoCliente.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            if (!DateTime.TryParse(novaDataNascimentoStr, out novaDataNascimento))
+            {
+                lblMensagemEdicaoCliente.Text = "Data de Nascimento inválida. Use o formato AAAA-MM-DD.";
+                lblMensagemEdicaoCliente.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            try
+            {
+                int rowsAffected = 0;
+
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    const string updateQuery = @"
+                    UPDATE Clientes 
+                    SET Nome = @Nome, 
+                    Email = @Email, 
+                    Telefone = @Telefone, 
+                    Endereco = @Endereco, 
+                    DataNascimento = @DataNascimento 
+                    WHERE IdCliente = @IdCliente";
+
+                    using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@IdCliente", idCliente);
+                        cmd.Parameters.AddWithValue("@Nome", novoNome);
+                        cmd.Parameters.AddWithValue("@Email", string.IsNullOrEmpty(novoEmail) ? (object)DBNull.Value : novoEmail);
+                        cmd.Parameters.AddWithValue("@Telefone", string.IsNullOrEmpty(novoTelefone) ? (object)DBNull.Value : novoTelefone);
+                        cmd.Parameters.AddWithValue("@Endereco", string.IsNullOrEmpty(novoEndereco) ? (object)DBNull.Value : novoEndereco);
+                        cmd.Parameters.AddWithValue("@DataNascimento", novaDataNascimento);
+
+                        rowsAffected = cmd.ExecuteNonQuery();
+                    }
+                }
+
+                // 3. Verifica o resultado da execução (rowsAffected)
+                if (rowsAffected > 0)
+                {
+                    OcultarTodosConteudos();
+                    lblMensagemEdicaoCliente.Text = $"✅ Cliente ID {idCliente} atualizado com sucesso!";
+                    lblMensagemEdicaoCliente.ForeColor = System.Drawing.Color.Green;
+
+                    btnVoltarOpcoesGerente_Click(null, null);
+                }
+                else
+                {
+                    lblMensagemEdicaoCliente.Text = "Nenhuma alteração realizada ou cliente não encontrado.";
+                    lblMensagemEdicaoCliente.ForeColor = System.Drawing.Color.Red;
+                }
+            }
+            catch (Exception ex)
+            {
+                lblMensagemEdicaoCliente.Text = $"Erro ao salvar edições: {ex.Message}";
+                lblMensagemEdicaoCliente.ForeColor = System.Drawing.Color.DarkRed;
+            }
+        }
+
         protected void btnCadastrarClienteGerente_Click(object sender, EventArgs e)
         {
             AbrePainelCadastroCliente();
@@ -313,12 +507,20 @@ namespace PluxeePetADS4.Funcionario
             string email = txtEmailCliente.Text.Trim();
             string telefone = txtTelefoneCliente.Text.Trim();
             string endereco = txtEnderecoCliente.Text.Trim();
-            int idade = 0;
-            bool isIdadeValid = int.TryParse(txtIdadeCliente.Text.Trim(), out idade);
 
-            if (string.IsNullOrEmpty(nome) || string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(senha))
+            string dataNascimentoStr = txtIdadeCliente.Text.Trim();
+            DateTime dataNascimento;
+
+            if (string.IsNullOrEmpty(nome) || string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(senha) || string.IsNullOrEmpty(dataNascimentoStr))
             {
-                lblMensagemCadastroCliente.Text = "Nome, Usuário e Senha são campos obrigatórios.";
+                lblMensagemCadastroCliente.Text = "Nome, Usuário, Senha e Data de Nascimento são campos obrigatórios.";
+                lblMensagemCadastroCliente.ForeColor = Color.Red;
+                return;
+            }
+
+            if (!DateTime.TryParse(dataNascimentoStr, out dataNascimento))
+            {
+                lblMensagemCadastroCliente.Text = "Data de Nascimento inválida. Use o formato AAAA-MM-DD (ou o formato esperado pelo controle).";
                 lblMensagemCadastroCliente.ForeColor = Color.Red;
                 return;
             }
@@ -338,8 +540,8 @@ namespace PluxeePetADS4.Funcionario
                     }
 
                     const string query = @"
-                             INSERT INTO Clientes (Nome, Usuario, Senha, Email, Telefone, Endereco, Idade, Ativo) 
-                             VALUES (@Nome, @Usuario, @Senha, @Email, @Telefone, @Endereco, @Idade, 1)"; // NOVO: Adicionado Ativo=1 por padrão
+                    INSERT INTO Clientes (Nome, Usuario, Senha, Email, Telefone, Endereco, DataNascimento, Ativo) 
+                    VALUES (@Nome, @Usuario, @Senha, @Email, @Telefone, @Endereco, @DataNascimento, 1)";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
@@ -349,7 +551,7 @@ namespace PluxeePetADS4.Funcionario
                         cmd.Parameters.AddWithValue("@Email", string.IsNullOrEmpty(email) ? (object)DBNull.Value : email);
                         cmd.Parameters.AddWithValue("@Telefone", string.IsNullOrEmpty(telefone) ? (object)DBNull.Value : telefone);
                         cmd.Parameters.AddWithValue("@Endereco", string.IsNullOrEmpty(endereco) ? (object)DBNull.Value : endereco);
-                        cmd.Parameters.AddWithValue("@Idade", isIdadeValid && idade > 0 ? (object)idade : DBNull.Value);
+                        cmd.Parameters.AddWithValue("@DataNascimento", dataNascimento);
 
                         int rowsAffected = cmd.ExecuteNonQuery();
 
@@ -372,6 +574,13 @@ namespace PluxeePetADS4.Funcionario
                 lblMensagemCadastroCliente.Text = $"Erro ao cadastrar cliente: {ex.Message}";
                 lblMensagemCadastroCliente.ForeColor = Color.Red;
             }
+        }
+
+        protected void btnVoltarOpcoesGerente_Click(object sender, EventArgs e)
+        {
+            OcultarTodosConteudos();
+            if (pnlOpcoesFuncionario != null) pnlOpcoesFuncionario.Visible = true;
+            if (pnlOpcoesGerente != null) pnlOpcoesGerente.Visible = true;
         }
 
         private void LimparCamposCadastroCliente()
@@ -413,17 +622,17 @@ namespace PluxeePetADS4.Funcionario
             pnlCadastroFuncionario.Visible = true;
             txtNomeFunc.Text = "";
             txtSenhaFunc.Text = "";
-            txtCargoFunc.Text = "";
             lblMensagemCadastroFuncionario.Text = "Preencha os dados do novo funcionário.";
             lblMensagemCadastroFuncionario.ForeColor = Color.Blue;
         }
 
         protected void btnSalvarFuncionario_Click(object sender, EventArgs e)
         {
-       
+
             if (Session["FuncionarioId"] == null)
             {
-                lblMensagemCadastroFuncionario.Text = "Sessão expirada.";
+                lblMensagemCadastroFuncionario.Text = "Sessão expirada. Faça login novamente.";
+                lblMensagemCadastroFuncionario.ForeColor = Color.Red;
                 OcultarTodosConteudos();
                 pnlLoginFuncionario.Visible = true;
                 return;
@@ -431,41 +640,13 @@ namespace PluxeePetADS4.Funcionario
 
             string nome = txtNomeFunc.Text.Trim();
             string senha = txtSenhaFunc.Text;
-            int IdFuncionario = 0;
-            bool isCargoValid = int.TryParse(txtCargoFunc.Text.Trim(), out IdFuncionario);
+            string cpf = txtCpfFunc.Text.Trim();
 
-            if (string.IsNullOrEmpty(nome) || string.IsNullOrEmpty(senha) || !isCargoValid || IdFuncionario <= 0)
+            if (string.IsNullOrEmpty(nome) || string.IsNullOrEmpty(senha) || string.IsNullOrEmpty(cpf))
             {
-                lblMensagemCadastroFuncionario.Text = "Nome, Senha e ID do Cargo (número válido) são obrigatórios.";
+                lblMensagemCadastroFuncionario.Text = "Nome, Senha e CPF são obrigatórios.";
                 lblMensagemCadastroFuncionario.ForeColor = Color.Red;
                 return;
-            }
-
-            if (IdFuncionario == 4 && (int)Session["FuncionarioId"] == 4)
-            {
-            
-                try
-                {
-                    using (SqlConnection conn = new SqlConnection(connectionString))
-                    {
-                        conn.Open();
-                        SqlCommand checkGerenteCmd = new SqlCommand("SELECT COUNT(*) FROM Funcionarios WHERE IdFuncionario = 4 AND Ativo = 1", conn);
-                        checkGerenteCmd.Parameters.AddWithValue("@IdFuncionario", (int)Session["FuncionarioId"]);
-
-                        if ((int)checkGerenteCmd.ExecuteScalar() > 0)
-                        {
-                            lblMensagemCadastroFuncionario.Text = "Já existe outro Gerente (ID 4) ativo no sistema. Não é permitido cadastrar múltiplos gerentes.";
-                            lblMensagemCadastroFuncionario.ForeColor = Color.Red;
-                            return;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    lblMensagemCadastroFuncionario.Text = $"Erro ao verificar cargo de gerente: {ex.Message}";
-                    lblMensagemCadastroFuncionario.ForeColor = Color.Red;
-                    return;
-                }
             }
 
             try
@@ -473,36 +654,28 @@ namespace PluxeePetADS4.Funcionario
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                  
-                    SqlCommand checkCargoCmd = new SqlCommand("SELECT COUNT(*) FROM Funcionarios WHERE CargoId = @CargoId", conn);
-                    checkCargoCmd.Parameters.AddWithValue("@IdFuncionario", IdFuncionario);
-                    if ((int)checkCargoCmd.ExecuteScalar() == 0)
-                    {
-                        lblMensagemCadastroFuncionario.Text = $"O Cargo ID {IdFuncionario} não existe na tabela de Cargos.";
-                        lblMensagemCadastroFuncionario.ForeColor = Color.Red;
-                        return;
-                    }
 
                     const string query = @"
-                             INSERT INTO Funcionarios (Nome, Senha, CargoId, Ativo) 
-                             OUTPUT INSERTED.IdFuncionario
-                             VALUES (@Nome, @Senha, @CargoId, 1)";
+                INSERT INTO Funcionarios (Nome, Senha, CPF, Ativo) 
+                OUTPUT INSERTED.IdFuncionario
+                VALUES (@Nome, @Senha, @CPF, 1)";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@Nome", nome);
                         cmd.Parameters.AddWithValue("@Senha", senha);
-                        cmd.Parameters.AddWithValue("@IdFuncionario", IdFuncionario);
+                        cmd.Parameters.AddWithValue("@CPF", cpf); 
 
                         int novoId = (int)cmd.ExecuteScalar();
 
                         if (novoId > 0)
                         {
-                            lblMensagemCadastroFuncionario.Text = $"✅ Funcionário **{nome}** cadastrado com sucesso! Novo ID: {novoId}";
+                            lblMensagemCadastroFuncionario.Text = $"✅ Funcionário **{nome}** (CPF: {cpf}) cadastrado com sucesso! Novo ID: {novoId}.";
                             lblMensagemCadastroFuncionario.ForeColor = Color.Green;
+
                             txtNomeFunc.Text = "";
                             txtSenhaFunc.Text = "";
-                            txtCargoFunc.Text = "";
+                            txtCpfFunc.Text = ""; 
                         }
                         else
                         {
@@ -590,6 +763,102 @@ namespace PluxeePetADS4.Funcionario
             }
         }
 
+        protected void btnBuscarFuncionarioParaEdicao_Click(object sender, EventArgs e)
+        {
+           
+            pnlFormularioEdicaoFuncionario.Visible = false;
+            lblStatusBuscaFuncionario.Text = string.Empty;
+            lblMensagemEdicaoFuncionario.Text = string.Empty;
+
+            string termoBusca = txtFuncIdPesquisa.Text.Trim();
+
+            if (string.IsNullOrEmpty(termoBusca))
+            {
+                lblStatusBuscaFuncionario.Text = "⚠️ Por favor, insira o Nome do funcionário para buscar.";
+                lblStatusBuscaFuncionario.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            try
+            {
+
+                string telefoneBruto = txtTelefoneEdicao.Text.Trim();
+                string telefoneLimpo = System.Text.RegularExpressions.Regex.Replace(telefoneBruto, "[^0-9]", "");
+
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    const string query = @"
+                    SELECT 
+                    IdFuncionario, 
+                    Nome, 
+                    CPF, 
+                    Email, 
+                    Telefone, 
+                    DataAdmissao 
+                    FROM Funcionarios 
+                    WHERE (IdFuncionario = @termoId OR Nome LIKE @termoNome)";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                      
+                        if (int.TryParse(termoBusca, out int funcionarioId))
+                        {
+                            cmd.Parameters.AddWithValue("@termoId", funcionarioId);
+                            cmd.Parameters.AddWithValue("@termoNome", DBNull.Value);
+                        }
+                        else
+                        {
+                            cmd.Parameters.AddWithValue("@termoId", DBNull.Value);
+                            cmd.Parameters.AddWithValue("@termoNome", "%" + termoBusca + "%");
+                        }
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                       
+                                int id = reader.GetInt32(reader.GetOrdinal("IdFuncionario"));
+
+                                lblIdFuncionarioEdicao.Text = id.ToString();
+                                txtNomeEdicao.Text = reader["Nome"].ToString();
+                                txtCpfEdicao.Text = reader["CPF"].ToString();
+                                txtEmailEdicao.Text = reader["Email"].ToString();
+                                txtTelefoneEdicao.Text = reader["Telefone"] == DBNull.Value ? string.Empty : reader["Telefone"].ToString();
+
+                                if (reader["DataAdmissao"] != DBNull.Value)
+                                {
+                                    txtDataAdmissaoEdicao.Text = ((DateTime)reader["DataAdmissao"]).ToString("yyyy-MM-dd");
+                                }
+                                else
+                                {
+                                    txtDataAdmissaoEdicao.Text = string.Empty;
+                                }
+
+                                txtNovaSenhaEdicao.Text = string.Empty;
+
+                                pnlFormularioEdicaoFuncionario.Visible = true;
+                                lblStatusBuscaFuncionario.Text = $"✅ Funcionário {reader["Nome"]} (ID {id}) carregado. Edite os dados abaixo.";
+                                lblStatusBuscaFuncionario.ForeColor = System.Drawing.Color.Green;
+                            }
+                            else
+                            {
+                                lblStatusBuscaFuncionario.Text = $"❌ Funcionário '{termoBusca}' não encontrado.";
+                                lblStatusBuscaFuncionario.ForeColor = System.Drawing.Color.Red;
+                                pnlFormularioEdicaoFuncionario.Visible = false;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                lblStatusBuscaFuncionario.Text = $"🛑 ERRO CRÍTICO NO BANCO/CÓDIGO: {ex.Message}";
+                lblStatusBuscaFuncionario.ForeColor = System.Drawing.Color.DarkRed;
+            }
+        }
+
         protected void btnBuscarFuncionario_Click(object sender, EventArgs e)
         {
             pnlDetalhesFuncionario.Visible = false;
@@ -610,29 +879,36 @@ namespace PluxeePetADS4.Funcionario
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
+                    DataTable dt = new DataTable();
 
-                    const string query = @"
-                        SELECT IdFuncionario, Nome, Cargo, Ativo 
-                        FROM Funcionarios 
-                        WHERE (IdFuncionario = @termoId OR Nome LIKE @termoNome)";
+                    bool isIdSearch = int.TryParse(termoBusca, out int funcionarioId);
+
+                    string query;
+                    if (isIdSearch)
+                    {
+                        query = "SELECT IdFuncionario, Nome, Cargo, Ativo FROM Funcionarios WHERE IdFuncionario = @termo";
+                    }
+                    else
+                    {
+                        query = "SELECT IdFuncionario, Nome, Cargo, Ativo FROM Funcionarios WHERE Nome LIKE @termo";
+                    }
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        if (int.TryParse(termoBusca, out int funcionarioId))
+                        if (isIdSearch)
                         {
-                            cmd.Parameters.AddWithValue("@termoId", funcionarioId);
-                            cmd.Parameters.AddWithValue("@termoNome", DBNull.Value);
+                            cmd.Parameters.AddWithValue("@termo", funcionarioId);
                         }
                         else
                         {
-                            cmd.Parameters.AddWithValue("@termoId", DBNull.Value);
-                            cmd.Parameters.AddWithValue("@termoNome", "%" + termoBusca + "%");
+                            cmd.Parameters.AddWithValue("@termo", "%" + termoBusca + "%");
                         }
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.Read())
                             {
+                           
                                 int id = reader.GetInt32(0);
                                 string nome = reader.GetString(1);
                                 string nomeCargo = reader.GetString(2);
@@ -640,7 +916,6 @@ namespace PluxeePetADS4.Funcionario
 
                                 lblFuncionarioNome.Text = $"Nome: {nome} (ID: {id})";
                                 lblFuncionarioCargo.Text = $"Cargo: {nomeCargo}";
-
                                 pnlDetalhesFuncionario.Visible = true;
 
                                 if (ativo)
@@ -659,7 +934,6 @@ namespace PluxeePetADS4.Funcionario
                                     lblMensagemDesativarFuncionario.ForeColor = System.Drawing.Color.Red;
                                 }
 
-                                // Proteção para evitar que o Gerente logado se desative
                                 if (Session["FuncionarioId"] != null && (int)Session["FuncionarioId"] == id)
                                 {
                                     btnConfirmarDesativacaoFunc.Visible = false;
@@ -669,7 +943,7 @@ namespace PluxeePetADS4.Funcionario
                             }
                             else
                             {
-                                lblMensagemDesativarFuncionario.Text = $"Funcionário {termoBusca} não encontrado.";
+                                lblMensagemDesativarFuncionario.Text = $"Funcionário '{termoBusca}' não encontrado.";
                                 lblMensagemDesativarFuncionario.ForeColor = System.Drawing.Color.Red;
                             }
                         }
@@ -683,14 +957,138 @@ namespace PluxeePetADS4.Funcionario
             }
         }
 
+        protected void btnAcessarEdicaoFuncionario_Click(object sender, EventArgs e)
+        {
+           
+            OcultarTodosConteudos();
+            pnlEditarFuncionario.Visible = true;
+
+            lblStatusBuscaFuncionario.Text = string.Empty;
+            lblMensagemEdicaoFuncionario.Text = string.Empty;
+            txtFuncIdPesquisa.Text = string.Empty;
+            pnlFormularioEdicaoFuncionario.Visible = false;
+        }
+
+        protected void btnSalvarEdicaoFuncionario_Click(object sender, EventArgs e)
+        {
+            lblMensagemEdicaoFuncionario.Text = string.Empty;
+            if (!int.TryParse(lblIdFuncionarioEdicao.Text, out int idFuncionario))
+            {
+                lblMensagemEdicaoFuncionario.Text = "ID de funcionário para edição não está definido. Busque novamente.";
+                lblMensagemEdicaoFuncionario.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            string novoNome = txtNomeEdicao.Text.Trim();
+            string novoCpf = txtCpfEdicao.Text.Trim();
+            string novoEmail = txtEmailEdicao.Text.Trim();
+            string novoTelefoneBruto = txtTelefoneEdicao.Text.Trim();
+            string novaDataAdmissaoStr = txtDataAdmissaoEdicao.Text;
+            string novaSenha = txtNovaSenhaEdicao.Text;
+
+            if (string.IsNullOrEmpty(novoNome) || string.IsNullOrEmpty(novoCpf) || string.IsNullOrEmpty(novoEmail) || string.IsNullOrEmpty(novaDataAdmissaoStr))
+            {
+                lblMensagemEdicaoFuncionario.Text = "Nome, CPF, Email e Data de Admissão são obrigatórios.";
+                lblMensagemEdicaoFuncionario.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            if (!DateTime.TryParse(novaDataAdmissaoStr, out DateTime novaDataAdmissao))
+            {
+                lblMensagemEdicaoFuncionario.Text = "Data de Admissão inválida. Use o formato AAAA-MM-DD.";
+                lblMensagemEdicaoFuncionario.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            try
+            {
+
+                string telefoneLimpo = System.Text.RegularExpressions.Regex.Replace(novoTelefoneBruto, "[^0-9]", "");
+                object telefoneParametro = string.IsNullOrEmpty(telefoneLimpo) ? (object)DBNull.Value : telefoneLimpo;
+
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    string updateQuery = @"
+                    UPDATE Funcionarios 
+                    SET Nome = @Nome, 
+                    CPF = @CPF, 
+                    Email = @Email,  
+                    Telefone = @Telefone, 
+                    DataAdmissao = @DataAdmissao"
+                        + (string.IsNullOrEmpty(novaSenha) ? "" : ", Senha = @Senha")
+                        + " WHERE IdFuncionario = @IdFuncionario";
+
+                    using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
+                    {
+                      
+                        cmd.Parameters.AddWithValue("@IdFuncionario", idFuncionario);
+                        cmd.Parameters.AddWithValue("@Nome", novoNome);
+                        cmd.Parameters.AddWithValue("@CPF", novoCpf);
+                        cmd.Parameters.AddWithValue("@Email", novoEmail);
+                        cmd.Parameters.AddWithValue("@Telefone", telefoneParametro); 
+                        cmd.Parameters.AddWithValue("@DataAdmissao", novaDataAdmissao);
+
+                        if (!string.IsNullOrEmpty(novaSenha))
+                        {
+                            cmd.Parameters.AddWithValue("@Senha", novaSenha);
+                        }
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            lblMensagemEdicaoFuncionario.Text = $"✅ Funcionário ID {idFuncionario} atualizado com sucesso!";
+                            lblMensagemEdicaoFuncionario.ForeColor = System.Drawing.Color.Green;
+
+                            txtFuncIdPesquisa.Text = string.Empty;
+                            lblStatusBuscaFuncionario.Text = string.Empty;
+                            lblMensagemEdicaoFuncionario.Text = string.Empty;
+
+                            OcultarTodosConteudos();
+
+                            pnlFormularioEdicaoFuncionario.Visible = false;
+
+                            if (pnlOpcoesFuncionario != null) 
+                            {
+                                pnlOpcoesFuncionario.Visible = true;
+                            }
+
+                            if (pnlOpcoesGerente != null)
+                            {
+                                pnlOpcoesGerente.Visible = true;
+                            }
+
+                        }
+                        else
+                        {
+                            lblMensagemEdicaoFuncionario.Text = "Nenhuma alteração realizada ou funcionário não encontrado.";
+                            lblMensagemEdicaoFuncionario.ForeColor = System.Drawing.Color.Red;
+                        }
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+                lblMensagemEdicaoFuncionario.Text = $"🛑 Erro ao salvar edições (SQL Error): {sqlEx.Message}";
+                lblMensagemEdicaoFuncionario.ForeColor = System.Drawing.Color.DarkRed;
+            }
+            catch (Exception ex)
+            {
+                lblMensagemEdicaoFuncionario.Text = $"Erro ao salvar edições: {ex.Message}";
+                lblMensagemEdicaoFuncionario.ForeColor = System.Drawing.Color.DarkRed;
+            }
+        }
+
         protected void gvClientes_RowCommand(object sender, GridViewCommandEventArgs e)
         {
             lblMensagemDesativarCliente.Text = string.Empty;
             pnlDetalhesCliente.Visible = true;
 
-            if (e.CommandName == "DesativarCliente") 
+            if (e.CommandName == "DesativarCliente")
             {
-        
+
                 if (!int.TryParse(e.CommandArgument.ToString(), out int idCliente))
                 {
                     lblMensagemDesativarCliente.Text = "❌ Erro: ID de cliente inválido.";
@@ -700,7 +1098,7 @@ namespace PluxeePetADS4.Funcionario
 
                 try
                 {
-         
+
                     const string queryUpdate = "UPDATE Clientes SET Ativo = 0 WHERE IdCliente = @id";
 
                     using (SqlConnection conn = new SqlConnection(connectionString))
@@ -752,7 +1150,7 @@ namespace PluxeePetADS4.Funcionario
 
                 if (clienteRow != null)
                 {
-                 
+
                     int idClienteBusca = Convert.ToInt32(clienteRow["IdCliente"]);
                     string nomeCliente = clienteRow["Nome"].ToString();
                     string usuarioCliente = clienteRow["Usuario"].ToString();
@@ -805,7 +1203,6 @@ namespace PluxeePetADS4.Funcionario
 
                     if (int.TryParse(termoBusca, out int idCliente))
                     {
-                        // Busca por ID
                         const string queryId = @"
                         SELECT IdCliente, Nome, Usuario, Ativo 
                         FROM Clientes 
@@ -819,7 +1216,6 @@ namespace PluxeePetADS4.Funcionario
                     }
                     else
                     {
-                        // Busca por Nome (não case-sensitive)
                         const string queryNome = @"
                         SELECT IdCliente, Nome, Usuario, Ativo 
                         FROM Clientes 
@@ -858,11 +1254,11 @@ namespace PluxeePetADS4.Funcionario
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-       
+
                     const string query = @"
                         UPDATE Funcionarios 
                         SET Ativo = 0 
-                        WHERE IdFuncionario = @id AND Ativo = 1"; //
+                        WHERE IdFuncionario = @id AND Ativo = 1"; 
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
@@ -934,11 +1330,11 @@ namespace PluxeePetADS4.Funcionario
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
- 
+
                     const string query = @"
                         UPDATE Clientes 
                         SET Ativo = 0 
-                        WHERE IdCliente = @id AND Ativo = 1"; 
+                        WHERE IdCliente = @id AND Ativo = 1";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
