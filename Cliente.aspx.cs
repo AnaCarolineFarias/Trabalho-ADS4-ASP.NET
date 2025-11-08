@@ -63,7 +63,7 @@ namespace PluxeePetADS4.Cliente
             if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(senha))
             {
                 MostrarMensagem("Preencha usuário e senha!", System.Drawing.Color.Red);
-                pnlLogin.Visible = true; // Mantém o login visível
+                pnlLogin.Visible = true;
                 return;
             }
 
@@ -200,7 +200,8 @@ namespace PluxeePetADS4.Cliente
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    const string query = "SELECT Nome, Email, Telefone, Endereco, Idade FROM Clientes WHERE IdCliente = @IdCliente";
+               
+                    const string query = "SELECT Nome, Email, Telefone, Endereco, DataNascimento FROM Clientes WHERE IdCliente = @IdCliente";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
@@ -210,12 +211,20 @@ namespace PluxeePetADS4.Cliente
                         {
                             if (reader.Read())
                             {
-
                                 txtNomePerfil.Text = reader["Nome"] != DBNull.Value ? reader["Nome"].ToString() : "";
                                 txtEmailPerfil.Text = reader["Email"] != DBNull.Value ? reader["Email"].ToString() : "";
                                 txtTelefonePerfil.Text = reader["Telefone"] != DBNull.Value ? reader["Telefone"].ToString() : "";
                                 txtEnderecoPerfil.Text = reader["Endereco"] != DBNull.Value ? reader["Endereco"].ToString() : "";
-                                txtIdadePerfil.Text = reader["Idade"] != DBNull.Value ? reader["Idade"].ToString() : "";
+
+                                if (reader["DataNascimento"] != DBNull.Value)
+                                {
+                                    DateTime dataNascimento = (DateTime)reader["DataNascimento"];
+                                    txtIdadePerfil.Text = dataNascimento.ToString("yyyy-MM-dd");
+                                }
+                                else
+                                {
+                                    txtIdadePerfil.Text = string.Empty;
+                                }
 
                                 lblFeedbackPerfil.Text = "Dados carregados. Você pode editar e salvar.";
                                 lblFeedbackPerfil.ForeColor = System.Drawing.Color.Blue;
@@ -245,38 +254,45 @@ namespace PluxeePetADS4.Cliente
                 return;
             }
 
-            int idade = 0;
-            bool isIdadeValid = int.TryParse(txtIdadePerfil.Text.Trim(), out idade);
-
             int clienteId = (int)Session["ClienteId"];
             string nome = txtNomePerfil.Text.Trim();
             string email = txtEmailPerfil.Text.Trim();
             string telefone = txtTelefonePerfil.Text.Trim();
             string endereco = txtEnderecoPerfil.Text.Trim();
+            string dataNascimentoStr = txtIdadePerfil.Text.Trim();
+            DateTime novaDataNascimento;
+
+            if (string.IsNullOrEmpty(dataNascimentoStr) || !DateTime.TryParse(dataNascimentoStr, out novaDataNascimento))
+            {
+                lblFeedbackPerfil.Text = "Data de Nascimento é obrigatória e deve ser válida.";
+                lblFeedbackPerfil.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
 
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    const string query = @"UPDATE Clientes 
-                                   SET Nome = @Nome, Email = @Email, Telefone = @Telefone, Endereco = @Endereco, Idade = @Idade
-                                   WHERE IdCliente = @IdCliente";
+
+                    const string query = @"UPDATE Clientes 
+                                   SET Nome = @Nome, Email = @Email, Telefone = @Telefone, Endereco = @Endereco, DataNascimento = @DataNascimento
+                                   WHERE IdCliente = @IdCliente";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@Nome", nome);
-                        cmd.Parameters.AddWithValue("@Email", email);
-                        cmd.Parameters.AddWithValue("@Telefone", telefone);
-                        cmd.Parameters.AddWithValue("@Endereco", endereco);
+                        cmd.Parameters.AddWithValue("@Email", string.IsNullOrEmpty(email) ? (object)DBNull.Value : email);
+                        cmd.Parameters.AddWithValue("@Telefone", string.IsNullOrEmpty(telefone) ? (object)DBNull.Value : telefone);
+                        cmd.Parameters.AddWithValue("@Endereco", string.IsNullOrEmpty(endereco) ? (object)DBNull.Value : endereco);
+                        cmd.Parameters.AddWithValue("@DataNascimento", novaDataNascimento);
                         cmd.Parameters.AddWithValue("@IdCliente", clienteId);
-                        cmd.Parameters.AddWithValue("@Idade", isIdadeValid && idade > 0 ? (object)idade : DBNull.Value);
 
                         int rowsAffected = cmd.ExecuteNonQuery();
 
                         if (rowsAffected > 0)
                         {
-                            lblFeedbackPerfil.Text = "Perfil atualizado com sucesso!";
+                            lblFeedbackPerfil.Text = "✅ Perfil atualizado com sucesso!";
                             lblFeedbackPerfil.ForeColor = System.Drawing.Color.Green;
                         }
                         else
