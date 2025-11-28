@@ -149,23 +149,6 @@ namespace PluxeePetADS4.Cliente
                             MostrarMensagem("Erro ao criar a conta. Tente novamente.", Color.Red);
                         }
                     }
-                    catch (SqlException ex)
-                    {
-       
-                        if (ex.Number == 2627)
-                        {
-                            MostrarMensagem("Este Usuário já está cadastrado. Tente outro.", Color.Red);
-                        }
-                        else
-                        {
-                            MostrarMensagem($"Erro no banco de dados: {ex.Message}", Color.Red);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MostrarMensagem($"Erro inesperado: {ex.Message}", Color.Red);
-                    }
-                }
             }
         }
        
