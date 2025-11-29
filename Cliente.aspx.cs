@@ -1,4 +1,5 @@
 using System;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
@@ -14,7 +15,7 @@ namespace PluxeePetADS4.Cliente
     public partial class Cliente : System.Web.UI.Page
     {
 
-        private readonly string connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=PluxeePet;Integrated Security=True";
+        private readonly string connectionString = ConfigurationManager.ConnectionStrings["PluxeePet"].ConnectionString;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -72,7 +73,12 @@ namespace PluxeePetADS4.Cliente
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    const string query = @"SELECT IdCliente, Nome FROM Clientes WHERE Usuario = @usuario AND Senha = @senha";
+                    const string query = @"
+                    SELECT IdCliente, Nome 
+                    FROM dbo.Clientes 
+                    WHERE Usuario = @usuario 
+                    AND Senha = @senha 
+                    AND Ativo = 1";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
@@ -94,7 +100,7 @@ namespace PluxeePetADS4.Cliente
                             }
                             else
                             {
-                                MostrarMensagem("Usuário ou senha incorretos!", System.Drawing.Color.Red);
+                                MostrarMensagem("Usuário, senha incorretos ou conta inativa!", System.Drawing.Color.Red);
                                 pnlLogin.Visible = true;
                             }
                         }
@@ -120,9 +126,8 @@ namespace PluxeePetADS4.Cliente
                 return;
             }
 
-            string connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=PluxeePet;Integrated Security=True";
             string senhaParaBD = senha;
-            string query = "INSERT INTO Clientes (Nome, Usuario, Senha) VALUES (@Nome, @Usuario, @Senha)";
+            string query = "INSERT INTO dbo.Clientes (Nome, Usuario, Senha) VALUES (@Nome, @Usuario, @Senha)";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -149,6 +154,23 @@ namespace PluxeePetADS4.Cliente
                             MostrarMensagem("Erro ao criar a conta. Tente novamente.", Color.Red);
                         }
                     }
+                    catch (SqlException ex)
+                    {
+       
+                        if (ex.Number == 2627)
+                        {
+                            MostrarMensagem("Este Usuário já está cadastrado. Tente outro.", Color.Red);
+                        }
+                        else
+                        {
+                            MostrarMensagem($"Erro no banco de dados: {ex.Message}", Color.Red);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MostrarMensagem($"Erro inesperado: {ex.Message}", Color.Red);
+                    }
+                }
             }
         }
        
@@ -184,7 +206,7 @@ namespace PluxeePetADS4.Cliente
                 {
                     conn.Open();
                
-                    const string query = "SELECT Nome, Email, Telefone, Endereco, DataNascimento FROM Clientes WHERE IdCliente = @IdCliente";
+                    const string query = "SELECT Nome, Email, Telefone, Endereco, DataNascimento FROM dbo.Clientes WHERE IdCliente = @IdCliente";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
@@ -258,7 +280,7 @@ namespace PluxeePetADS4.Cliente
                 {
                     conn.Open();
 
-                    const string query = @"UPDATE Clientes 
+                    const string query = @"UPDATE dbo.Clientes 
                                    SET Nome = @Nome, Email = @Email, Telefone = @Telefone, Endereco = @Endereco, DataNascimento = @DataNascimento
                                    WHERE IdCliente = @IdCliente";
 
@@ -318,7 +340,7 @@ namespace PluxeePetADS4.Cliente
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    const string query = @"SELECT NomePet, Data, Hora FROM Consultas WHERE IdCliente = @idCliente ORDER BY Data DESC, Hora DESC";
+                    const string query = @"SELECT NomePet, Data, Hora FROM dbo.Consultas WHERE IdCliente = @idCliente ORDER BY Data DESC, Hora DESC";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
@@ -376,7 +398,7 @@ namespace PluxeePetADS4.Cliente
                 return;
             }
 
-            const string query = "INSERT INTO Consultas (IdCliente, Servico, NomePet, Data, Hora) VALUES (@IdCliente, @Servico, @NomePet, @Data, @Hora)";
+            const string query = "INSERT INTO dbo.Consultas (IdCliente, Servico, NomePet, Data, Hora) VALUES (@IdCliente, @Servico, @NomePet, @Data, @Hora)";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
